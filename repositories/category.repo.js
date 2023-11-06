@@ -5,23 +5,28 @@ const createCategory = async ({ name, image }) => {
 };
 
 const findCategories = async () => {
-  return await Categories.findAll();
+  return await Categories.findAll({
+    where: {
+      delete_flag: false,
+    },
+  });
 };
 
-const findOneCategories = async ({ filter = {} }) => {
+const findOneCategories = async (filter = {}) => {
   return await Categories.findOne({ where: filter });
 };
 
-const updateCategory = async ({ filter, data }) => {
+const updateCategory = async (filter, data) => {
   return await Categories.update(
     {
-      name: data.name,
+      image: data?.image,
+      delete_flag: data?.delete_flag,
     },
     { where: filter }
   );
 };
 
-const deleteCategory = async ({ filter }) => {
+const deleteCategory = async (filter) => {
   return await Categories.update(
     {
       delete_flag: true,
