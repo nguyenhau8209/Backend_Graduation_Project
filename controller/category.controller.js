@@ -3,7 +3,9 @@ const categoryService = require("../services/category.service");
 
 const createCategory = async (req, res) => {
   try {
-    const data = await categoryService.createCategory(req.body);
+    const { image } = req.files;
+    const { name } = req.body;
+    const data = await categoryService.createCategory({ name, image });
     if (data?.error) {
       return res
         .status(data?.status)
@@ -57,7 +59,8 @@ const findOneCategory = async (req, res) => {
 
 const updateCategory = async (req, res) => {
   const { id } = req.params;
-  const { name, image } = req.body;
+  const { name } = req.body;
+  const { image } = req.files;
   try {
     const data = await categoryService.updateCategory({ id, name, image });
     // console.log(data);

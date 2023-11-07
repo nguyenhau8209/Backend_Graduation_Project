@@ -1,5 +1,6 @@
 const STATUS_CODE = require("../constants/httpResponseCode");
 const categoryRepo = require("../repositories/category.repo");
+const uploadImage = require("../utils/cloudinary");
 
 const createCategory = async (data) => {
   const { name, image } = data;
@@ -10,12 +11,24 @@ const createCategory = async (data) => {
       message: "Vui long nhap du du lieu",
     };
   }
+  const cloudFile = await uploadImage(
+    image.tempFilePath,
+    image,
+    "category-image"
+  );
+  if (!cloudFile) {
+    return {
+      error: true,
+      status: STATUS_CODE.badRequest,
+      message: "Loi upload anh",
+    };
+  }
   const findCategory = await categoryRepo.findOneCategory({ name });
   if (findCategory) {
     if (findCategory?.dataValues?.delete_flag) {
       const updateCategory = await categoryRepo.updateCategory(
         { name: name },
-        { image: image, delete_flag: false }
+        { image: cloudFile.url, delete_flag: false }
       );
       return {
         error: false,
@@ -29,7 +42,10 @@ const createCategory = async (data) => {
       message: "Category da ton tai",
     };
   }
-  const newCategory = await categoryRepo.createCategory({ name, image });
+  const newCategory = await categoryRepo.createCategory({
+    name,
+    image: cloudFile.url,
+  });
   return {
     error: false,
     status: STATUS_CODE.created,
@@ -99,6 +115,18 @@ const updateCategory = async (data) => {
     };
   }
   try {
+    const cloudFile = await uploadImage(
+      image.tempFilePath,
+      image,
+      "category-image"
+    );
+    if (!cloudFile) {
+      return {
+        error: true,
+        status: STATUS_CODE.badRequest,
+        message: "Loi upload anh",
+      };
+    }
     const findOneCategory = await categoryRepo.findOneCategory({ id });
     if (!findOneCategory) {
       return {
@@ -125,7 +153,7 @@ const updateCategory = async (data) => {
 
     const updateCategory = await categoryRepo.updateCategory(
       { id },
-      { name, image }
+      { name, image: cloudFile.url }
     );
     if (!updateCategory) {
       return {
