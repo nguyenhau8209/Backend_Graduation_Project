@@ -12,13 +12,15 @@ const findCategories = async () => {
   });
 };
 
-const findOneCategories = async (filter = {}) => {
+const findOneCategory = async (filter = {}) => {
   return await Categories.findOne({ where: filter });
 };
 
 const updateCategory = async (filter, data) => {
+  console.log(filter, data);
   return await Categories.update(
     {
+      name: data?.name,
       image: data?.image,
       delete_flag: data?.delete_flag,
     },
@@ -38,7 +40,7 @@ const deleteCategory = async (filter) => {
 const categoryRepo = {
   createCategory,
   findCategories,
-  findOneCategories,
+  findOneCategory,
   updateCategory,
   deleteCategory,
 };
