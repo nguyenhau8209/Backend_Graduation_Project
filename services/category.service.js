@@ -24,18 +24,8 @@ const createCategory = async (data) => {
     };
   }
   const findCategory = await categoryRepo.findOneCategory({ name });
+  console.log(findCategory);
   if (findCategory) {
-    if (findCategory?.dataValues?.delete_flag) {
-      const updateCategory = await categoryRepo.updateCategory(
-        { name: name },
-        { image: cloudFile.url, delete_flag: false }
-      );
-      return {
-        error: false,
-        status: STATUS_CODE.success,
-        message: "Tao category thanh cong",
-      };
-    }
     return {
       error: true,
       status: STATUS_CODE.badRequest,
@@ -81,8 +71,8 @@ const findOneCategory = async (data) => {
     };
   }
   try {
-    const findUser = await categoryRepo.findOneCategory({ id });
-    if (!findUser || findUser.dataValues.delete_flag) {
+    const findCategory = await categoryRepo.findOneCategory({ id });
+    if (!findCategory) {
       return {
         error: true,
         status: STATUS_CODE.notFounded,
@@ -92,7 +82,7 @@ const findOneCategory = async (data) => {
     return {
       error: false,
       status: STATUS_CODE.success,
-      data: findUser.dataValues,
+      data: findCategory.dataValues,
       message: "Thanh cong",
     };
   } catch (error) {
@@ -135,15 +125,8 @@ const updateCategory = async (data) => {
         message: "Khong tim thay category",
       };
     }
-    if (findOneCategory.dataValues.delete_flag) {
-      return {
-        error: true,
-        status: STATUS_CODE.notFounded,
-        message: "Khong tim thay category",
-      };
-    }
     const findNameCategory = await categoryRepo.findOneCategory({ name });
-    if (findNameCategory && !findNameCategory.dataValues.delete_flag) {
+    if (findNameCategory) {
       return {
         error: true,
         status: STATUS_CODE.badRequest,
@@ -189,7 +172,7 @@ const deleteCategory = async (data) => {
   }
   try {
     const findOneCategory = await categoryRepo.findOneCategory({ id });
-    if (!findOneCategory || findOneCategory.dataValues.delete_flag) {
+    if (!findOneCategory) {
       return {
         error: true,
         status: STATUS_CODE.notFounded,
@@ -217,12 +200,53 @@ const deleteCategory = async (data) => {
     };
   }
 };
+
+const restoreCategory = async (data) => {
+  const { id } = data;
+  if (!id) {
+    return {
+      error: true,
+      status: STATUS_CODE.badRequest,
+      message: "Khong duoc de trong",
+    };
+  }
+  try {
+    const findOneCategory = await categoryRepo.findOneCategory({ id });
+    if (!findOneCategory) {
+      return {
+        error: true,
+        status: STATUS_CODE.notFounded,
+        message: "Khong tim thay category",
+      };
+    }
+    const restoreCategory = await categoryRepo.restoreCategory({ id });
+    if (!restoreCategory) {
+      return {
+        error: true,
+        status: STATUS_CODE.badRequest,
+        message: "Khoi phuc khong thanh cong",
+      };
+    }
+    return {
+      error: false,
+      status: STATUS_CODE.success,
+      message: "Khoi phuc thanh cong",
+    };
+  } catch (error) {
+    return {
+      error: true,
+      status: STATUS_CODE.errorServer,
+      message: error.message,
+    };
+  }
+};
 const categoryService = {
   createCategory,
   findCategories,
   findOneCategory,
   updateCategory,
   deleteCategory,
+  restoreCategory,
 };
 
 module.exports = categoryService;

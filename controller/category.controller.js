@@ -96,12 +96,31 @@ const deleteCategory = async (req, res) => {
       .json({ status: STATUS_CODE.errorServer, message: error.message });
   }
 };
+
+const restoreCategory = async (req, res) => {
+  try {
+    const data = await categoryService.restoreCategory(req.params);
+    if (data?.error) {
+      return res
+        .status(data?.status)
+        .json({ status: data?.status, message: data?.message });
+    }
+    return res
+      .status(data?.status)
+      .json({ status: data?.status, message: data?.message });
+  } catch (error) {
+    return res
+      .status(STATUS_CODE.errorServer)
+      .json({ status: STATUS_CODE.errorServer, message: error.message });
+  }
+};
 const categoryController = {
   createCategory,
   findCategories,
   findOneCategory,
   updateCategory,
   deleteCategory,
+  restoreCategory,
 };
 
 module.exports = categoryController;

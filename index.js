@@ -4,12 +4,12 @@ var bodyParser = require("body-parser");
 const authRouter = require("./routes/auth.router");
 const categoryRouter = require("./routes/category.router");
 const fileUpload = require("express-fileupload");
-
 const dotenv = require("dotenv");
 dotenv.config();
 const PORT = process.env.PORT;
 const app = express();
 const db = require("./models");
+const connectionDatatbase = require("./models/connectDatabase");
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -25,8 +25,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-db.sequelize.sync().then(() => {
-  app.listen(PORT ? PORT : 3000, () => {
-    console.log(`http://localhost:${PORT}`);
-  });
+connectionDatatbase();
+app.listen(PORT ? PORT : 3000, () => {
+  console.log(`http://localhost:${PORT}`);
 });
