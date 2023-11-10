@@ -11,6 +11,16 @@ const createCategory = async (data) => {
       message: "Vui long nhap du du lieu",
     };
   }
+
+  const findCategory = await categoryRepo.findOneCategory({ name });
+  console.log(findCategory);
+  if (findCategory) {
+    return {
+      error: true,
+      status: STATUS_CODE.badRequest,
+      message: "Category da ton tai",
+    };
+  }
   const cloudFile = await uploadImage(
     image.tempFilePath,
     image,
@@ -21,15 +31,6 @@ const createCategory = async (data) => {
       error: true,
       status: STATUS_CODE.badRequest,
       message: "Loi upload anh",
-    };
-  }
-  const findCategory = await categoryRepo.findOneCategory({ name });
-  console.log(findCategory);
-  if (findCategory) {
-    return {
-      error: true,
-      status: STATUS_CODE.badRequest,
-      message: "Category da ton tai",
     };
   }
   const newCategory = await categoryRepo.createCategory({
@@ -105,18 +106,6 @@ const updateCategory = async (data) => {
     };
   }
   try {
-    const cloudFile = await uploadImage(
-      image.tempFilePath,
-      image,
-      "category-image"
-    );
-    if (!cloudFile) {
-      return {
-        error: true,
-        status: STATUS_CODE.badRequest,
-        message: "Loi upload anh",
-      };
-    }
     const findOneCategory = await categoryRepo.findOneCategory({ id });
     if (!findOneCategory) {
       return {
@@ -133,7 +122,18 @@ const updateCategory = async (data) => {
         message: "category da ton tai",
       };
     }
-
+    const cloudFile = await uploadImage(
+      image.tempFilePath,
+      image,
+      "category-image"
+    );
+    if (!cloudFile) {
+      return {
+        error: true,
+        status: STATUS_CODE.badRequest,
+        message: "Loi upload anh",
+      };
+    }
     const updateCategory = await categoryRepo.updateCategory(
       { id },
       { name, image: cloudFile.url }
