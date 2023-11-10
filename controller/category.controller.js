@@ -59,10 +59,8 @@ const findOneCategory = async (req, res) => {
 
 const updateCategory = async (req, res) => {
   const { id } = req.params;
-  const { name } = req.body;
-  const { image } = req.files;
   try {
-    const data = await categoryService.updateCategory({ id, name, image });
+    const data = await categoryService.updateCategory(id, req.body, req.files);
     // console.log(data);
     if (data?.error) {
       return res

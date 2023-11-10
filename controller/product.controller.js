@@ -65,7 +65,7 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const data = await productService.updateProduct(id, req.body);
+    const data = await productService.updateProduct(id, req.body, req.files);
     if (data?.error) {
       return res
         .status(data?.status)
@@ -80,11 +80,30 @@ const updateProduct = async (req, res) => {
       .json({ status: STATUS_CODE.errorServer, message: error.message });
   }
 };
+
+const deleteProduct = async (req, res) => {
+  try {
+    const data = await productService.deleteProduct(req.params);
+    if (data?.error) {
+      return res
+        .status(data?.status)
+        .json({ status: data?.status, message: data?.message });
+    }
+    return res
+      .status(data?.status)
+      .json({ status: data?.status, message: data?.message });
+  } catch (error) {
+    return res
+      .status(STATUS_CODE.errorServer)
+      .json({ status: STATUS_CODE.errorServer, message: error.message });
+  }
+};
 const productController = {
   findOneProduct,
   createProduct,
   findProducts,
   updateProduct,
+  deleteProduct,
 };
 
 module.exports = productController;

@@ -1,6 +1,13 @@
 const STATUS_CODE = require("../constants/httpResponseCode");
 const productRepo = require("../repositories/product.repo");
+const urlUploadImage = require("../utils/cloudinary");
 const uploadImage = require("../utils/cloudinary");
+const {
+  handleBadRequest,
+  handleNotFound,
+  handleSuccess,
+  handleServerError,
+} = require("../utils/handleReturn");
 
 const findProducts = async () => {
   try {
@@ -80,21 +87,10 @@ const createProduct = async (data) => {
       message: "Product da ton tai",
     };
   }
-  const cloudFile = await uploadImage(
-    mainImage.tempFilePath,
-    mainImage,
-    "Product-image"
-  );
-  if (!cloudFile) {
-    return {
-      error: true,
-      status: STATUS_CODE.badRequest,
-      message: "Loi upload anh",
-    };
-  }
+  const cloudFile = await urlUploadImage(mainImage.tempFilePath, mainImage);
   const newProduct = await productRepo.createProduct({
     name,
-    mainImage: cloudFile.url,
+    mainImage: cloudFile,
     categoryId,
   });
   return {
@@ -105,46 +101,60 @@ const createProduct = async (data) => {
   };
 };
 
-const updateProduct = async (id, data) => {
-  console.log(id, data);
+const updateProduct = async (id, data, mainImage) => {
+  console.log(mainImage);
   if (!id) {
-    return {
-      error: true,
-      status: STATUS_CODE.badRequest,
-      message: "id khong duoc de trong",
-    };
+    return handleBadRequest("Khong duoc de trong");
   }
   try {
-    const findProduct = await productRepo.findOneProduct({ id });
-    if (!findProduct) {
-      return {
-        error: true,
-        status: STATUS_CODE.notFounded,
-        message: "Khong tim thay san pham",
-      };
+    const findOneProduct = await productRepo.findOneProduct({ id });
+    if (!findOneProduct) {
+      return handleNotFound("Khong tim thay category");
     }
-    const updateProduct = await productRepo.updateProduct({ id }, data);
-
+    if (mainImage) {
+      console.log(mainImage);
+      const cloudFile = await urlUploadImage(
+        mainImage.mainImage.tempFilePath,
+        mainImage.mainImage
+      );
+      const updateProduct = await productRepo.updateProduct(
+        { id },
+        { data, mainImage: cloudFile }
+      );
+      if (!updateProduct) {
+        return handleBadRequest("Cap nhat that bai");
+      }
+      const findAfterUpdate = await productRepo.findOneProduct({ id });
+      return handleSuccess("Cap nhat thanh cong", findAfterUpdate);
+    }
+    const updateProduct = await productRepo.updateProduct({ id }, { data });
     if (!updateProduct) {
-      return {
-        error: true,
-        status: STATUS_CODE.badRequest,
-        message: "Cap nhat that bai",
-      };
+      return handleBadRequest("Cap nhat that bai");
     }
     const findAfterUpdate = await productRepo.findOneProduct({ id });
-    return {
-      error: false,
-      status: STATUS_CODE.success,
-      data: findAfterUpdate,
-      message: "Cap nhat thanh cong",
-    };
+    return handleSuccess("Cap nhat thanh cong", findAfterUpdate);
   } catch (error) {
-    return {
-      error: true,
-      status: STATUS_CODE.errorServer,
-      message: error.message,
-    };
+    return handleServerError(error.message);
+  }
+};
+
+const deleteProduct = async (data) => {
+  try {
+    const { id } = data;
+    if (!id) {
+      return handleBadRequest("Khong duoc de trong");
+    }
+    const findProduct = await productRepo.findOneProduct({ id });
+    if (!findProduct) {
+      return handleNotFound("Khong tim thay san pham");
+    }
+    const deleteProduct = await productRepo.deleteProduct({ id });
+    if (!deleteProduct) {
+      return handleBadRequest("Xoa khong thanh cong");
+    }
+    return handleSuccess("Xoa thanh cong");
+  } catch (error) {
+    return handleServerError(error.message);
   }
 };
 const productService = {
@@ -152,6 +162,7 @@ const productService = {
   findOneProduct,
   createProduct,
   updateProduct,
+  deleteProduct,
 };
 
 module.exports = productService;

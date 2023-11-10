@@ -1,203 +1,120 @@
 const STATUS_CODE = require("../constants/httpResponseCode");
 const categoryRepo = require("../repositories/category.repo");
+const urlUploadImage = require("../utils/cloudinary");
 const uploadImage = require("../utils/cloudinary");
+const {
+  handleBadRequest,
+  handleNotFound,
+  handleCreate,
+  handleSuccess,
+  handleServerError,
+} = require("../utils/handleReturn");
 
 const createCategory = async (data) => {
   const { name, image } = data;
   if (!name || !image) {
-    return {
-      error: true,
-      status: STATUS_CODE.badRequest,
-      message: "Vui long nhap du du lieu",
-    };
+    return handleBadRequest("khong duoc de trong");
   }
 
   const findCategory = await categoryRepo.findOneCategory({ name });
   console.log(findCategory);
   if (findCategory) {
-    return {
-      error: true,
-      status: STATUS_CODE.badRequest,
-      message: "Category da ton tai",
-    };
+    return handleNotFound("Khong tim thay category");
   }
-  const cloudFile = await uploadImage(
-    image.tempFilePath,
-    image,
-    "category-image"
-  );
-  if (!cloudFile) {
-    return {
-      error: true,
-      status: STATUS_CODE.badRequest,
-      message: "Loi upload anh",
-    };
-  }
+  const cloudFile = await urlUploadImage(image.tempFilePath, image);
   const newCategory = await categoryRepo.createCategory({
     name,
-    image: cloudFile.url,
+    image: cloudFile,
   });
-  return {
-    error: false,
-    status: STATUS_CODE.created,
-    data: newCategory,
-    message: "Tao category thanh cong",
-  };
+  return handleCreate("Tao category thanh cong", newCategory);
 };
 
 const findCategories = async () => {
   const listCategories = await categoryRepo.findCategories();
   if (!listCategories) {
-    return {
-      error: true,
-      status: STATUS_CODE.notFounded,
-      message: "That bai",
-    };
+    return handleNotFound("Khong tim thay category");
   }
-  return {
-    error: false,
-    status: STATUS_CODE.success,
-    data: listCategories,
-    message: "Thanh cong",
-  };
+  return handleSuccess("Thanh cong", listCategories);
 };
 
 const findOneCategory = async (data) => {
   const { id } = data;
   if (!id) {
-    return {
-      error: true,
-      status: STATUS_CODE.badRequest,
-      message: "name thi khong duoc de trong",
-    };
+    return handleBadRequest("Khong duoc de trong");
   }
   try {
     const findCategory = await categoryRepo.findOneCategory({ id });
     if (!findCategory) {
-      return {
-        error: true,
-        status: STATUS_CODE.notFounded,
-        message: "Khong tim thay category",
-      };
+      return handleNotFound("Khong tim thay category");
     }
-    return {
-      error: false,
-      status: STATUS_CODE.success,
-      data: findCategory.dataValues,
-      message: "Thanh cong",
-    };
+    return handleSuccess("Thanh cong", findCategory);
   } catch (error) {
-    return {
-      error: true,
-      status: STATUS_CODE.errorServer,
-      message: error.message,
-    };
+    return handleServerError(error.message);
   }
 };
 
-const updateCategory = async (data) => {
-  console.log(data);
-  const { id, name, image } = data;
-  if (!id || !name || !image) {
-    return {
-      error: true,
-      status: STATUS_CODE.badRequest,
-      message: "Khong duoc de trong",
-    };
+const updateCategory = async (id, data, image) => {
+  console.log(image);
+  if (!id) {
+    return handleBadRequest("Khong duoc de trong");
   }
   try {
     const findOneCategory = await categoryRepo.findOneCategory({ id });
     if (!findOneCategory) {
-      return {
-        error: true,
-        status: STATUS_CODE.notFounded,
-        message: "Khong tim thay category",
-      };
+      return handleNotFound("Khong tim thay category");
     }
-    const findNameCategory = await categoryRepo.findOneCategory({ name });
-    if (findNameCategory) {
-      return {
-        error: true,
-        status: STATUS_CODE.badRequest,
-        message: "category da ton tai",
-      };
+    if (data.name) {
+      const findNameCategory = await categoryRepo.findOneCategory({
+        name: data.name,
+      });
+      if (findNameCategory) {
+        return handleBadRequest("Category da ton tai");
+      }
     }
-    const cloudFile = await uploadImage(
-      image.tempFilePath,
-      image,
-      "category-image"
-    );
-    if (!cloudFile) {
-      return {
-        error: true,
-        status: STATUS_CODE.badRequest,
-        message: "Loi upload anh",
-      };
+
+    if (image) {
+      const cloudFile = await urlUploadImage(
+        image.image.tempFilePath,
+        image.image
+      );
+      const updateCategory = await categoryRepo.updateCategory(
+        { id },
+        { data, image: cloudFile }
+      );
+      if (!updateCategory) {
+        return handleBadRequest("Cap nhat that bai");
+      }
+      const findAfterUpdate = await categoryRepo.findOneCategory({ id });
+      return handleSuccess("Cap nhat thanh cong", findAfterUpdate);
     }
-    const updateCategory = await categoryRepo.updateCategory(
-      { id },
-      { name, image: cloudFile.url }
-    );
+    const updateCategory = await categoryRepo.updateCategory({ id }, { data });
     if (!updateCategory) {
-      return {
-        error: true,
-        status: STATUS_CODE.badRequest,
-        message: "Cap nhat that bai",
-      };
+      return handleBadRequest("Cap nhat that bai");
     }
     const findAfterUpdate = await categoryRepo.findOneCategory({ id });
-    return {
-      error: false,
-      status: STATUS_CODE.success,
-      data: findAfterUpdate,
-      message: "cap nhat thanh cong",
-    };
+    return handleSuccess("Cap nhat thanh cong", findAfterUpdate);
   } catch (error) {
-    return {
-      error: true,
-      status: STATUS_CODE.errorServer,
-      message: error.message,
-    };
+    return handleServerError(error.message);
   }
 };
 
 const deleteCategory = async (data) => {
   const { id } = data;
   if (!id) {
-    return {
-      error: true,
-      status: STATUS_CODE.badRequest,
-      message: "Khong duoc de trong",
-    };
+    return handleBadRequest("Khong duoc de trong");
   }
   try {
     const findOneCategory = await categoryRepo.findOneCategory({ id });
     if (!findOneCategory) {
-      return {
-        error: true,
-        status: STATUS_CODE.notFounded,
-        message: "Khong tim thay category",
-      };
+      return handleNotFound("Khong tim thay category");
     }
     const deleteCategory = await categoryRepo.deleteCategory({ id });
     if (!deleteCategory) {
-      return {
-        error: true,
-        status: STATUS_CODE.badRequest,
-        message: "Xoa khong thanh cong",
-      };
+      return handleBadRequest("Xoa khong thanh cong");
     }
-    return {
-      error: false,
-      status: STATUS_CODE.success,
-      message: "Xoa thanh cong",
-    };
+    return handleSuccess("Xoa thanh cong");
   } catch (error) {
-    return {
-      error: true,
-      status: STATUS_CODE.errorServer,
-      message: error.message,
-    };
+    return handleServerError(error.message);
   }
 };
 

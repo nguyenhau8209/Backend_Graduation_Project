@@ -16,9 +16,8 @@ const updateCategory = async (filter, data) => {
   console.log(filter, data);
   return await db.Category.update(
     {
-      name: data?.name,
+      name: data?.data?.name,
       image: data?.image,
-      delete_flag: data?.delete_flag,
     },
     { where: filter }
   );

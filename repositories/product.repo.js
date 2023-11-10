@@ -30,20 +30,27 @@ const updateProduct = async (filter, data) => {
   console.log(filter, data);
   return await db.Product.update(
     {
-      name: data?.name,
+      name: data?.data?.name,
       mainImage: data?.mainImage,
-      categoryId: data?.categoryId,
+      categoryId: data?.data?.categoryId,
     },
     {
       where: filter,
     }
   );
 };
+
+const deleteProduct = async (filter) => {
+  return await db.Product.destroy({
+    where: filter,
+  });
+};
 const productRepo = {
   findOneProduct,
   createProduct,
   findProducts,
   updateProduct,
+  deleteProduct,
 };
 
 module.exports = productRepo;
