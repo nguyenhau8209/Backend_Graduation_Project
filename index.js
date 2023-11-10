@@ -3,6 +3,7 @@ const cors = require("cors");
 var bodyParser = require("body-parser");
 const authRouter = require("./routes/auth.router");
 const categoryRouter = require("./routes/category.router");
+const productRouter = require("./routes/product.router");
 const fileUpload = require("express-fileupload");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -21,6 +22,7 @@ app.use(
 //auth
 app.use("/auth", authRouter);
 app.use("/category", categoryRouter);
+app.use("/product", productRouter);
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
