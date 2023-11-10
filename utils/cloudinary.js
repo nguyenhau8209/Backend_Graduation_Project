@@ -1,5 +1,6 @@
 // cloudinary.js
 const dotenv = require("dotenv");
+const { handleBadRequest } = require("./handleReturn");
 const cloudinary = require("cloudinary").v2;
 
 dotenv.config();
@@ -25,4 +26,12 @@ const uploadImage = async (file, image, folder) => {
   );
   return imageUpload;
 };
-module.exports = uploadImage;
+
+const urlUploadImage = async (tempFilePath, image) => {
+  const cloudFile = await uploadImage(tempFilePath, image, "category-image");
+  if (!cloudFile) {
+    return handleBadRequest("Lỗi upload ảnh");
+  }
+  return cloudFile.url;
+};
+module.exports = urlUploadImage;
