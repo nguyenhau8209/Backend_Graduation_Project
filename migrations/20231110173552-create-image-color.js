@@ -15,7 +15,7 @@ module.exports = {
       colorId: {
         type: Sequelize.INTEGER,
       },
-      prodctId: {
+      productId: {
         type: Sequelize.INTEGER,
       },
       createdAt: {

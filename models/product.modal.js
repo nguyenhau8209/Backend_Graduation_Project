@@ -14,6 +14,12 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "id",
         as: "categoryData",
       });
+      Product.hasMany(models.ProductSizeColor, {
+        foreignKey: "productId",
+        sourceKey: "id",
+        as: "productData",
+        targetKey: "id", // Thêm dòng này
+      });
     }
   }
   Product.init(

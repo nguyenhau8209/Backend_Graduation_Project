@@ -9,13 +9,23 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      ImageColor.belongsTo(models.Color, {
+        foreignKey: "colorId",
+        targetKey: "id",
+        as: "colorData",
+      });
+      ImageColor.belongsTo(models.Product, {
+        foreignKey: "productId",
+        targetKey: "id",
+        as: "productData",
+      });
     }
   }
   ImageColor.init(
     {
       imageUrl: DataTypes.STRING,
       colorId: DataTypes.INTEGER,
-      prodctId: DataTypes.INTEGER,
+      productId: DataTypes.INTEGER,
     },
     {
       sequelize,

@@ -4,6 +4,8 @@ var bodyParser = require("body-parser");
 const authRouter = require("./routes/auth.router");
 const categoryRouter = require("./routes/category.router");
 const productRouter = require("./routes/product.router");
+const sizeRouter = require("./routes/size.router");
+const colorRouter = require("./routes/color.router");
 const fileUpload = require("express-fileupload");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -23,6 +25,8 @@ app.use(
 app.use("/auth", authRouter);
 app.use("/category", categoryRouter);
 app.use("/product", productRouter);
+app.use("/size", sizeRouter);
+app.use("/color", colorRouter);
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
