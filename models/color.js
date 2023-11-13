@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
         as: "colorData",
         targetKey: "id", // Thêm dòng này
       });
+      Color.hasOne(models.ImageColor, {
+        foreignKey: "colorId",
+        targetKey: "id",
+        as: "imageColorData",
+      });
     }
   }
   Color.init(
