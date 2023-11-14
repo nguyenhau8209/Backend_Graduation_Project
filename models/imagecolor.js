@@ -19,6 +19,12 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "id",
         as: "productData",
       });
+      // ImageColor.hasMany(models.ProductSizeColor, {
+      //   foreignKey: "imageColorId",
+      //   sourceKey: "id",
+      //   as: "imageColorData",
+      //   targetKey: "id", // Thêm dòng này
+      // });
     }
   }
   ImageColor.init(

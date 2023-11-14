@@ -24,6 +24,11 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "id",
         as: "colorData",
       });
+      // ProductSizeColor.belongsTo(models.ImageColor, {
+      //   foreignKey: "imageColorId",
+      //   targetKey: "id",
+      //   as: "imageColorData",
+      // });
     }
   }
   ProductSizeColor.init(

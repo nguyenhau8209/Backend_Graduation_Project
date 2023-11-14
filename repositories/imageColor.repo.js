@@ -17,6 +17,7 @@ const getImageColors = async () => {
 };
 
 const getImageColor = async (filter) => {
+  console.log(filter);
   return await db.ImageColor.findOne({
     where: filter,
     attributes: {

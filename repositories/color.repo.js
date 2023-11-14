@@ -5,11 +5,28 @@ const createColor = async ({ name }) => {
 };
 
 const findColors = async () => {
-  return await db.Color.findAll();
+  return await db.Color.findAll({
+    include: [
+      {
+        model: db.ImageColor,
+        as: "imageColorData",
+        attributes: ["id", "imageUrl"],
+      },
+    ],
+  });
 };
 
 const findColor = async (filter) => {
-  return await db.Color.findOne({ where: filter });
+  return await db.Color.findOne({
+    where: filter,
+    include: [
+      {
+        model: db.ImageColor,
+        as: "imageColorData",
+        attributes: ["id", "imageUrl"],
+      },
+    ],
+  });
 };
 
 const updateColor = async (filter, data) => {
