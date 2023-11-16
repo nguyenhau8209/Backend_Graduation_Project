@@ -9,6 +9,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Size.hasMany(models.ProductSizeColor, {
+        foreignKey: "sizeId",
+        sourceKey: "id",
+        as: "sizeData",
+        targetKey: "id", // Thêm dòng này
+      });
     }
   }
   Size.init(
