@@ -11,5 +11,4 @@ const HTTP_MESSAGE = {
   userNotFound: "Không tìm thấy người dùng",
   passwordNotMatch: "Mật khẩu không đúng",
 };
-
-export default HTTP_MESSAGE;
+module.exports = HTTP_MESSAGE;

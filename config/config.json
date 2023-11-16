@@ -1,15 +1,16 @@
 {
   "development": {
-    "username": "freedb_gradutation",
-    "password": "uyCNW%u&yaSj9rz",
-    "database": "freedb_gradualtion_project",
-    "host": "sql.freedb.tech",
-    "dialect": "mysql"
+    "username": "root",
+    "password": null,
+    "database": "graduation_project",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "timezone": "+07:00"
   },
   "test": {
     "username": "root",
     "password": null,
-    "database": "database_test",
+    "database": "graduation_project",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },

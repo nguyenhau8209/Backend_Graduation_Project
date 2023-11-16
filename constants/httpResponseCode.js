@@ -6,4 +6,4 @@ const STATUS_CODE = {
   errorServer: 500,
 };
 
-export default STATUS_CODE;
+module.exports = STATUS_CODE;
