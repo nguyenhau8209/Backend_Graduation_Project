@@ -4,12 +4,33 @@ const STATUS_CODE = require("../constants/httpResponseCode");
 const accessToken = require("../utils/createToken");
 const verifyIdToken = require("../utils/verifyTokenGoogle");
 dotenv.config();
+const axios = require("axios");
+const customerRepo = require("../repositories/customer.repo");
 
+const getUserInfo = async (accessToken) => {
+  const endpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
+
+  try {
+    const response = await axios.get(endpoint, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return response.data; // Thông tin người dùng từ Google UserInfo API
+  } catch (error) {
+    console.error("Lỗi lấy thông tin người dùng:", error);
+    return {
+      error: true,
+      code: STATUS_CODE.notFounded,
+      message: error.message,
+    };
+  }
+};
 const login = async (data) => {
   try {
     const { token } = data;
 
-    const googleUser = await verifyIdToken(token);
+    const googleUser = await getUserInfo(token);
     try {
       const findUser = await userRepo.getUserByCondition({
         userId: googleUser.sub,
@@ -22,6 +43,12 @@ const login = async (data) => {
           picture: googleUser.picture,
         });
         const token = await accessToken(googleUser.sub);
+        const findUser = await userRepo.getUserByCondition({
+          userId: newUser.userId,
+        });
+        const createCustomer = await customerRepo.createCustomer({
+          userId: findUser.dataValues.id,
+        });
         return {
           error: false,
           code: STATUS_CODE.created,
