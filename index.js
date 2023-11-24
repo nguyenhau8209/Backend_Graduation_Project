@@ -10,6 +10,7 @@ const imageColorRouter = require("./routes/imageColor.router");
 const productSizeColorRouter = require("./routes/productSizeColor.router");
 const cartItemRouter = require("./routes/cartItem.router");
 const cartRouter = require("./routes/cart.router");
+const orderRouter = require("./routes/order.router");
 const fileUpload = require("express-fileupload");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -35,6 +36,7 @@ app.use("/image-color", imageColorRouter);
 app.use("/product-size-color", productSizeColorRouter);
 app.use("/cart/item", cartItemRouter);
 app.use("/cart", cartRouter);
+app.use("/order", orderRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
