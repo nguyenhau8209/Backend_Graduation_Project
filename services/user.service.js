@@ -6,6 +6,7 @@ const verifyIdToken = require("../utils/verifyTokenGoogle");
 dotenv.config();
 const axios = require("axios");
 const customerRepo = require("../repositories/customer.repo");
+const cartRepo = require("../repositories/cart.repo");
 
 const getUserInfo = async (accessToken) => {
   const endpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
@@ -49,12 +50,23 @@ const login = async (data) => {
         const createCustomer = await customerRepo.createCustomer({
           userId: findUser.dataValues.id,
         });
+        console.log(createCustomer);
+        const findCustomer = await customerRepo.getCustomer({
+          userId: createCustomer.userId,
+        });
+        const createCart = await cartRepo.createCart({
+          customerId: findCustomer.dataValues.id,
+        });
+        const findCart = await cartRepo.getCart({
+          customerId: createCart.customerId,
+        });
         return {
           error: false,
           code: STATUS_CODE.created,
           data: newUser,
           message: "Dang nhap thanh cong",
           token: token,
+          cart: findCart.dataValues,
         };
       }
       console.log("vao update");

@@ -12,7 +12,7 @@ module.exports = {
       cartId: {
         type: Sequelize.INTEGER,
       },
-      productSizeMauId: {
+      productSizeColorId: {
         type: Sequelize.INTEGER,
       },
       amount: {

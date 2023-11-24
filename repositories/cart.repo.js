@@ -5,7 +5,43 @@ const createCart = async ({ customerId }) => {
 };
 
 const getCart = async (filter) => {
-  return await db.Cart.findOne({ where: filter });
+  return await db.Cart.findOne({
+    where: filter,
+    include: [
+      {
+        model: db.CartItem,
+        as: "cartItemData",
+        attributes: ["id", "amount"],
+        include: [
+          {
+            model: db.ProductSizeColor,
+            as: "cartProductSizeColorData",
+            attributes: ["id", "price"],
+            include: [
+              {
+                model: db.Product,
+                as: "productData",
+                attributes: ["id", "name", "mainImage"],
+                include: [
+                  {
+                    model: db.Category,
+                    as: "categoryData",
+                    attributes: ["id", "name"],
+                  },
+                ],
+              },
+              {
+                model: db.Color,
+                as: "colorData",
+                attributes: ["id", "name"],
+              },
+              { model: db.Size, as: "sizeData", attributes: ["id", "name"] },
+            ],
+          },
+        ],
+      },
+    ],
+  });
 };
 const cartRepo = { createCart, getCart };
 
