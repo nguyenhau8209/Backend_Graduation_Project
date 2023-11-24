@@ -4,8 +4,10 @@ const createCartItem = async ({ cartId, productSizeColorId, amount }) => {
   return await db.CartItem.create({ cartId, productSizeColorId, amount });
 };
 
-const getCartItems = async () => {
-  return await db.CartItem.findAll();
+const getCartItems = async (filter) => {
+  return await db.CartItem.findAll({
+    where: filter,
+  });
 };
 
 const getCartItem = async (filter) => {
