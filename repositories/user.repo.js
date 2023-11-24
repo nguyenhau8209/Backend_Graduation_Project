@@ -1,12 +1,13 @@
+const db = require("../models");
 const { Users } = require("../models");
 
 const createUser = async ({ userId, name, email, picture }) => {
-  return await Users.create({ userId, name, email, picture });
+  return await db.User.create({ userId, name, email, picture });
 };
 
 const updateUser = async (filter, data) => {
   console.log(data);
-  return await Users.update(
+  return await db.User.update(
     {
       userId: data.userId,
       name: data.name,
@@ -20,7 +21,7 @@ const updateUser = async (filter, data) => {
 };
 
 const getUserByCondition = async (filter = {}) => {
-  const findUser = await Users.findOne({
+  const findUser = await db.User.findOne({
     where: filter,
   });
   return findUser;
