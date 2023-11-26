@@ -7,6 +7,19 @@ const findProducts = async () => {
     },
     include: [
       { model: db.Category, as: "categoryData", attributes: ["id", "name"] },
+      {
+        model: db.ProductSizeColor,
+        as: "productData",
+        attributes: ["id", "amount", "price"],
+        include: [
+          {
+            model: db.Color,
+            as: "colorData",
+            attributes: ["id", "name"],
+          },
+          { model: db.Size, as: "sizeData", attributes: ["id", "name"] },
+        ],
+      },
     ],
   });
 };
