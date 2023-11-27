@@ -3,7 +3,7 @@ const cartItemService = require("../services/cartItem.service");
 
 const createCartItem = async (req, res) => {
   try {
-    const data = await cartItemService.createCartItem(req.body);
+    const data = await cartItemService.createCartItem(req.body, req.loginUser);
     if (data?.error) {
       return res
         .status(data?.status)

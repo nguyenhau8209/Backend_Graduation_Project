@@ -3,7 +3,10 @@ const orderItemService = require("../services/orderItem.service");
 
 const createOrderItem = async (req, res) => {
   try {
-    const data = await orderItemService.createOrderItem(req.body);
+    const data = await orderItemService.createOrderItem(
+      req.body,
+      req.loginUser
+    );
     if (data?.error) {
       return res
         .status(data?.status)

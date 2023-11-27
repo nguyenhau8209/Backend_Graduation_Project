@@ -7,6 +7,7 @@ dotenv.config();
 const axios = require("axios");
 const customerRepo = require("../repositories/customer.repo");
 const cartRepo = require("../repositories/cart.repo");
+const HelperApp = require("../utils/helper");
 
 const getUserInfo = async (accessToken) => {
   const endpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
@@ -29,80 +30,143 @@ const getUserInfo = async (accessToken) => {
 };
 const login = async (data) => {
   try {
-    const { token } = data;
+    const { access_token } = data;
+    const googleUser = await getUserInfo(access_token);
+    let newUser = await userRepo.getUserByCondition({ userId: googleUser.sub });
 
-    const googleUser = await getUserInfo(token);
-    try {
-      const findUser = await userRepo.getUserByCondition({
-        userId: googleUser.sub,
-      });
-      if (!findUser) {
-        const newUser = await userRepo.createUser({
-          userId: googleUser.sub,
-          name: googleUser.name,
-          email: googleUser.email,
-          picture: googleUser.picture,
-        });
-        const token = await accessToken(googleUser.sub);
-        const findUser = await userRepo.getUserByCondition({
-          userId: newUser.userId,
-        });
-        const createCustomer = await customerRepo.createCustomer({
-          userId: findUser.dataValues.id,
-        });
-        console.log(createCustomer);
-        const findCustomer = await customerRepo.getCustomer({
-          userId: createCustomer.userId,
-        });
-        const createCart = await cartRepo.createCart({
-          customerId: findCustomer.dataValues.id,
-        });
-        const findCart = await cartRepo.getCart({
-          customerId: createCart.customerId,
-        });
+    if (!newUser) {
+      newUser = await createUserFromGoogleUser(googleUser);
+      if (!newUser) {
         return {
-          error: false,
-          code: STATUS_CODE.created,
-          data: newUser,
-          message: "Dang nhap thanh cong",
-          token: token,
-          cart: findCart.dataValues,
+          error: true,
+          code: STATUS_CODE.errorServer,
+          message: "User creation failed.",
         };
       }
-      console.log("vao update");
-      const updateUser = await userRepo.updateUser(
-        { userId: googleUser.sub },
-        {
-          userId: googleUser.sub,
-          name: googleUser.name,
-          email: googleUser.email,
-          picture: googleUser.picture,
-        }
-      );
-      const findUserUpdated = await userRepo.getUserByCondition({
-        userId: googleUser.sub,
-      });
-      const token = await accessToken(googleUser.sub);
-      return {
-        error: false,
-        code: STATUS_CODE.success,
-        data: findUserUpdated,
-        message: "Dang nhap thanh cong",
-        token: token,
-      };
-    } catch (error) {
-      return {
-        error: true,
-        code: STATUS_CODE.errorServer,
-        message: error.message,
-      };
     }
+
+    // Check if customer exists
+    let customer = await customerRepo.getCustomer({ userId: newUser.id });
+    if (!customer) {
+      customer = await customerRepo.createCustomer({ userId: newUser.id });
+      if (!customer) {
+        return {
+          error: true,
+          code: STATUS_CODE.errorServer,
+          message: "Customer creation failed.",
+        };
+      }
+    }
+
+    // Check if cart exists
+    let cart = await cartRepo.getCart({ customerId: customer.id });
+    if (!cart) {
+      cart = await cartRepo.createCart({ customerId: customer.id });
+      if (!cart) {
+        return {
+          error: true,
+          code: STATUS_CODE.errorServer,
+          message: "Cart creation failed.",
+        };
+      }
+    }
+
+    const updatedUser = await updateGoogleUser(newUser, googleUser);
+    const token = await HelperApp.generateJwtToken(
+      {
+        userId: googleUser.sub,
+        customerId: customer.id,
+        cartId: cart.id,
+      },
+      30 * 60
+    );
+
+    return {
+      error: false,
+      code: STATUS_CODE.success,
+      data: updatedUser,
+      message: "Login successful",
+      token: token,
+    };
   } catch (error) {
     return {
       error: true,
       code: STATUS_CODE.errorServer,
       message: error.message,
     };
+  }
+};
+
+const createUserFromGoogleUser = async (googleUser) => {
+  try {
+    const newUser = await userRepo.createUser({
+      userId: googleUser.sub,
+      name: googleUser.name,
+      email: googleUser.email,
+      picture: googleUser.picture,
+    });
+    return newUser;
+  } catch (error) {
+    throw new Error("User creation failed.");
+  }
+};
+
+// const handleCustomerAndCartCreation = async (newUser) => {
+//   try {
+//     // Check if customer exists before creating a new one
+//     const existingCustomer = await customerRepo.getCustomer({
+//       userId: newUser.id,
+//     });
+//     if (!existingCustomer) {
+//       const createCustomer = await customerRepo.createCustomer({
+//         userId: newUser.id,
+//       });
+//       if (!createCustomer) {
+//         return {
+//           error: true,
+//           code: STATUS_CODE.errorServer,
+//           message: "Customer creation failed.",
+//         };
+//       }
+//       const existingCart = await cartRepo.getCart({
+//         customerId: createCart.id,
+//       });
+//       if (!existingCart) {
+//         const createCart = await cartRepo.createCart({
+//           customerId: createCustomer.id,
+//         });
+//         if (!createCart) {
+//           return {
+//             error: true,
+//             code: STATUS_CODE.errorServer,
+//             message: "Cart creation failed.",
+//           };
+//         }
+//       }
+//     }
+//     return { createCustomer, createCart };
+//   } catch (error) {
+//     throw new Error("Customer or cart creation failed.");
+//   }
+// };
+
+const updateGoogleUser = async (user, googleUser) => {
+  try {
+    await userRepo.updateUser(
+      { userId: googleUser.sub },
+      {
+        userId: googleUser.sub,
+        name: googleUser.name,
+        email: googleUser.email,
+        picture: googleUser.picture,
+      }
+    );
+    const findUserUpdated = await userRepo.getUserByCondition({
+      userId: googleUser.sub,
+    });
+    return findUserUpdated;
+  } catch (error) {
+    throw new Error("User update failed.");
   }
 };
 

@@ -8,7 +8,7 @@ const {
   handleBadRequest,
 } = require("../utils/handleReturn");
 
-const createOrderItem = async (data) => {
+const createOrderItem = async (data, dataUser) => {
   try {
     const { cartItemIds } = data;
     // Lấy thông tin chi tiết của các cartItemIds từ cơ sở dữ liệu
@@ -16,7 +16,10 @@ const createOrderItem = async (data) => {
 
     if (cartItems.length > 0) {
       // Tạo đơn hàng từ các cartItems
-      const order = await orderRepo.createOrder({ customerId: 2 });
+      console.log(dataUser);
+      const order = await orderRepo.createOrder({
+        customerId: dataUser?.customerId,
+      });
 
       // Tạo các mục đơn hàng từ thông tin của cartItems
       for (const cartItem of cartItems) {
