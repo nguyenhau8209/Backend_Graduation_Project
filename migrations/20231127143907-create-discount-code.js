@@ -2,18 +2,27 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Orders", {
+    await queryInterface.createTable("DiscountCodes", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      customerId: {
+      code: {
+        type: Sequelize.STRING,
+      },
+      discountType: {
         type: Sequelize.INTEGER,
       },
-      addressId: {
-        type: Sequelize.INTEGER,
+      discountAmount: {
+        type: Sequelize.DOUBLE,
+      },
+      expiryDate: {
+        type: Sequelize.DATE,
+      },
+      active: {
+        type: Sequelize.BOOLEAN,
       },
       createdAt: {
         allowNull: false,
@@ -32,6 +41,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Orders");
+    await queryInterface.dropTable("DiscountCodes");
   },
 };

@@ -111,45 +111,6 @@ const createUserFromGoogleUser = async (googleUser) => {
   }
 };
 
-// const handleCustomerAndCartCreation = async (newUser) => {
-//   try {
-//     // Check if customer exists before creating a new one
-//     const existingCustomer = await customerRepo.getCustomer({
-//       userId: newUser.id,
-//     });
-//     if (!existingCustomer) {
-//       const createCustomer = await customerRepo.createCustomer({
-//         userId: newUser.id,
-//       });
-//       if (!createCustomer) {
-//         return {
-//           error: true,
-//           code: STATUS_CODE.errorServer,
-//           message: "Customer creation failed.",
-//         };
-//       }
-//       const existingCart = await cartRepo.getCart({
-//         customerId: createCart.id,
-//       });
-//       if (!existingCart) {
-//         const createCart = await cartRepo.createCart({
-//           customerId: createCustomer.id,
-//         });
-//         if (!createCart) {
-//           return {
-//             error: true,
-//             code: STATUS_CODE.errorServer,
-//             message: "Cart creation failed.",
-//           };
-//         }
-//       }
-//     }
-//     return { createCustomer, createCart };
-//   } catch (error) {
-//     throw new Error("Customer or cart creation failed.");
-//   }
-// };
-
 const updateGoogleUser = async (user, googleUser) => {
   try {
     await userRepo.updateUser(
@@ -175,3 +136,4 @@ const userService = {
 };
 
 module.exports = userService;
+
