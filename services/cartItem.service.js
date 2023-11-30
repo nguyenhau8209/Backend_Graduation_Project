@@ -9,18 +9,14 @@ const {
   handleSuccess,
 } = require("../utils/handleReturn");
 
-const createCartItem = async (data) => {
+const createCartItem = async (data, dataUser) => {
   console.log(data);
   try {
-    const { cartId, productSizeColorId, amount } = data;
-    if (!cartId || !productSizeColorId || !amount) {
+    const { productSizeColorId, amount } = data;
+    if (!productSizeColorId || !amount) {
       return handleBadRequest(
         "Khong duoc de trong cartId, productSizeColorId hoac amount"
       );
-    }
-    const findCart = await cartRepo.getCart({ id: cartId });
-    if (!findCart) {
-      return handleNotFound("Khong tim thay cart");
     }
     const findProductSizeColor = await productSizeColorRepo.getProductSizeColor(
       { id: productSizeColorId }
@@ -29,7 +25,7 @@ const createCartItem = async (data) => {
       return handleNotFound("Khong tim thay productSizeColor");
     }
     const createCartItem = await cartItemRepo.createCartItem({
-      cartId,
+      cartId: dataUser?.cartId,
       productSizeColorId,
       amount,
     });

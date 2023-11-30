@@ -1,9 +1,9 @@
 const STATUS_CODE = require("../constants/httpResponseCode");
-const cartItemService = require("../services/cartItem.service");
+const orderService = require("../services/order.service");
 
-const createCartItem = async (req, res) => {
+const createOrder = async (req, res) => {
   try {
-    const data = await cartItemService.createCartItem(req.body, req.loginUser);
+    const data = await orderService.createOrder(req.body);
     if (data?.error) {
       return res
         .status(data?.status)
@@ -19,9 +19,9 @@ const createCartItem = async (req, res) => {
   }
 };
 
-const getCartItems = async (req, res) => {
+const getOrder = async (req, res) => {
   try {
-    const data = await cartItemService.getCartItems();
+    const data = await orderService.getOrder(req.params);
     if (data?.error) {
       return res
         .status(data?.status)
@@ -37,28 +37,9 @@ const getCartItems = async (req, res) => {
   }
 };
 
-const getCartItem = async (req, res) => {
+const getOrders = async (req, res) => {
   try {
-    const data = await cartItemService.getCartItem(req.params);
-    if (data?.error) {
-      return res.status(data?.status).json({
-        status: data?.status,
-        message: data?.message,
-      });
-    }
-    return res
-      .status(data?.status)
-      .json({ status: data?.status, data: data?.data, message: data?.message });
-  } catch (error) {
-    return res
-      .status(STATUS_CODE.errorServer)
-      .json({ status: STATUS_CODE.errorServer, message: error?.message });
-  }
-};
-
-const deleteCartItem = async (req, res) => {
-  try {
-    const data = await cartItemService.deleteCartItem(req.params);
+    const data = await orderService.getOrders();
     if (data?.error) {
       return res
         .status(data?.status)
@@ -73,14 +54,9 @@ const deleteCartItem = async (req, res) => {
       .json({ status: STATUS_CODE.errorServer, message: error?.message });
   }
 };
-const updateCartItem = async (req, res) => {
+const deleteOrder = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { productSizeColorId } = req.body;
-    const data = await cartItemService.updateCartItem({
-      id,
-      productSizeColorId,
-    });
+    const data = await orderService.deleteOrder(req.params);
     if (data?.error) {
       return res
         .status(data?.status)
@@ -95,12 +71,6 @@ const updateCartItem = async (req, res) => {
       .json({ status: STATUS_CODE.errorServer, message: error?.message });
   }
 };
-const cartItemController = {
-  createCartItem,
-  getCartItem,
-  getCartItems,
-  updateCartItem,
-  deleteCartItem,
-};
+const orderController = { createOrder, getOrder, getOrders, deleteOrder };
 
-module.exports = cartItemController;
+module.exports = orderController;
