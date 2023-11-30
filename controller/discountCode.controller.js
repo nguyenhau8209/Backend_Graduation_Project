@@ -63,7 +63,7 @@ const deleteDiscountCode = async (req, res) => {
 };
 const updateDiscountCode = async (req, res) => {
   try {
-    const data = await discountCodeService.getDiscountCode(
+    const data = await discountCodeService.updateDiscountCode(
       req.params,
       req.body
     );

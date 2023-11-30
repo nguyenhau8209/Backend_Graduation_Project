@@ -1,12 +1,15 @@
 const db = require("../models");
 
-const createOrder = async ({ customerId }) => {
-  return await db.Order.create({ customerId });
+const createOrder = async ({ customerId, addressId }) => {
+  return await db.Order.create({ customerId, addressId });
 };
 
 const getOrder = async (filter) => {
   return await db.Order.findOne({
     where: filter,
+    attributes: {
+      exclude: ["addressId"],
+    },
     include: [
       {
         model: db.OrderItem,
@@ -40,12 +43,49 @@ const getOrder = async (filter) => {
           },
         ],
       },
+      {
+        model: db.Payment,
+        as: "paymentData",
+        attributes: [
+          "id",
+          "paymentType",
+          "status",
+          "total",
+          "transaction",
+          "discountCode",
+          "createdAt",
+        ],
+      },
+      {
+        model: db.Information,
+        as: "addressData",
+      },
     ],
   });
 };
 
 const getOrders = async () => {
-  return await db.Order.findAll();
+  return await db.Order.findAll({
+    include: [
+      {
+        model: db.Payment,
+        as: "paymentData",
+        attributes: [
+          "id",
+          "paymentType",
+          "status",
+          "total",
+          "transaction",
+          "discountCode",
+          "createdAt",
+        ],
+      },
+      {
+        model: db.Information,
+        as: "addressData",
+      },
+    ],
+  });
 };
 
 const deleteOrder = async (filter) => {

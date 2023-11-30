@@ -14,6 +14,16 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "id",
         as: "orderItemData",
       });
+      Order.hasOne(models.Payment, {
+        foreignKey: "orderId",
+        targetKey: "id",
+        as: "paymentData",
+      });
+      Order.belongsTo(models.Information, {
+        foreignKey: "addressId",
+        targetKey: "id",
+        as: "addressData",
+      });
     }
   }
   Order.init(

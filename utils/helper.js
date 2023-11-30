@@ -13,7 +13,7 @@ const comparePassWordMd5 = async (password, hashPass) => {
 };
 const generateJwtToken = (data, expireTime = 30) => {
   const signature = jwt.sign({ ...data }, process.env.TOKEN_SECRET, {
-    expiresIn: expireTime,
+    expiresIn: "1y",
   });
   return signature;
 };

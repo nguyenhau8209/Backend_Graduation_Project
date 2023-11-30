@@ -17,7 +17,7 @@ const createDiscountCode = async (data) => {
     // Kiểm tra xem expiryDate có lớn hơn ngày hôm nay không
     const today = moment().tz("Asia/Ho_Chi_Minh"); // Lấy ngày và giờ hiện tại theo múi giờ Việt Nam
     const expirationDate = moment(expiryDate).tz("Asia/Ho_Chi_Minh"); // Chuyển đổi expirationDate sang múi giờ Việt Nam
-    console.log(expirationDate.toDate());
+    console.log(expirationDate);
     if (expirationDate <= today) {
       return handleBadRequest("Ngày hết hạn phải lớn hơn ngày hôm nay");
     }
@@ -30,7 +30,7 @@ const createDiscountCode = async (data) => {
       code,
       discountType,
       discountAmount,
-      expiryDate: expiryDate,
+      expiryDate: expirationDate.toDate(),
       active,
     });
     if (!createDiscountCode) {
@@ -74,14 +74,16 @@ const getDiscountCode = async (data) => {
     if (!findDiscountCode) {
       return handleNotFound("Khong tim thay ma giam gia");
     }
+    console.log(findDiscountCode);
     if (
-      findDiscountCode.dataValues.expirationDate < new Date() &&
+      findDiscountCode.dataValues.expiryDate < new Date() &&
       findDiscountCode.dataValues.active === true
     ) {
       await discountCodeRepo.updateDiscountCode(
         { id: findDiscountCode.dataValues.id },
         { active: false }
       );
+      return handleBadRequest("Ma giam gia da het han");
     }
     const findAfterUpdate = await discountCodeRepo.getDiscountCode({ id });
     return handleSuccess("Thanh cong", findAfterUpdate);
@@ -113,6 +115,7 @@ const deleteDiscountCode = async (data) => {
 };
 
 const updateDiscountCode = async (idInfo, data) => {
+  console.log(data.expiryDate);
   try {
     const { id } = idInfo;
     if (!id) {
@@ -122,9 +125,10 @@ const updateDiscountCode = async (idInfo, data) => {
     if (!findDiscountCode) {
       return handleNotFound("Khong tim thay ma giam gia");
     }
-    if (data?.expirationDate) {
+    if (data?.expiryDate) {
+      console.log("vaooo");
       const today = new Date();
-      const expirationDate = new Date(expiryDate);
+      const expirationDate = new Date(data?.expiryDate);
 
       if (expirationDate <= today) {
         return handleBadRequest("Han su dung khong duoc nho hon hien tai");
@@ -132,6 +136,7 @@ const updateDiscountCode = async (idInfo, data) => {
         data.active = true;
       }
     }
+    console.log("Thoat");
     const updateDiscountCode = await discountCodeRepo.updateDiscountCode(
       { id },
       { ...data }
