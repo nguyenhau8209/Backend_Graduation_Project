@@ -5,7 +5,18 @@ const createCustomer = async ({ userId }) => {
 };
 
 const getCustomers = async () => {
-  return await db.Customer.findAll();
+  return await db.Customer.findAll({
+    attributes: {
+      exclude: ["userId"]
+    },
+    include: [
+      {
+        model: db.User,
+        as: "customerData",
+        attributes: ["id", "userId", "name", "email", "picture"]
+      },
+    ],
+  });
 };
 
 const getCustomer = async (filter) => {
