@@ -14,6 +14,7 @@ const orderRouter = require("./routes/order.router");
 const orderItemRouter = require("./routes/orderItem.router");
 const informationRouter = require("./routes/information.router");
 const discountCodeRouter = require("./routes/discountCode.router");
+const customerRouter = require("./routes/customer.router");
 const fileUpload = require("express-fileupload");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -43,6 +44,7 @@ app.use("/order", orderRouter);
 app.use("/order/item", orderItemRouter);
 app.use("/information", informationRouter);
 app.use("/discountCode", discountCodeRouter);
+app.use("/customer", customerRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
