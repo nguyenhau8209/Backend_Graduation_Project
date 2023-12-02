@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
         as: "productData",
         targetKey: "id", // Thêm dòng này
       });
+      Product.hasMany(models.Comment, {
+        foreignKey: "productId",
+        targetKey: "id",
+        as: "ProductCommentData",
+      });
     }
   }
   Product.init(

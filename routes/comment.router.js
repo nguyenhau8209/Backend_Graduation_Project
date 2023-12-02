@@ -11,3 +11,4 @@ commentRouter.post(
   commentController.createComment
 );
 
+commentRouter.get("/", commentController.getComment);

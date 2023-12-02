@@ -6,6 +6,7 @@ const {
   handleBadRequest,
   handleNotFound,
   handleSuccess,
+  handleCreate
 } = require("../utils/handleReturn");
 
 const createComment = async (data, dataUser) => {
@@ -21,7 +22,7 @@ const createComment = async (data, dataUser) => {
     if (!findProduct) {
       return handleNotFound("Khong tim thay findProduct");
     }
-
+   console.log("dataUsserr:   " + dataUser);
     const createComment = await commentRepo.createComment({
       rate,
       content,
@@ -37,8 +38,22 @@ const createComment = async (data, dataUser) => {
   }
 };
 
+const getComment = async () => {
+  try {
+    const dataComment = await commentRepo.getComment();
+
+    if (!dataComment) {
+      return handleNotFound("Khong tim thay comment")
+    }
+    return handleSuccess("thanh cong", dataComment)
+  } catch (error) {
+    return handleServerError(error?.message);
+  }
+};
+
 const commentService = {
   createComment,
+  getComment,
 };
 
 module.exports = commentService;

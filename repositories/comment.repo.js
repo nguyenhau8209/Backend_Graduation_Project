@@ -7,19 +7,26 @@ const createComment = async ({ rate, content, customerId, productId }) => {
 const getComment = async (filter = {}) => {
   return await db.Comment.findAll({
     where: filter,
-    attributes: {
-      exclude: ["id", "rate", "content"],
-    },
     include: [
-        {model: db.Product, as: "productData", attributes: ["id"]},
-        {model: db.User, as: "userData", attributes: ["userId", "name", "picture"]}
-    ]
+      {
+        model: db.Product,
+        as: "ProductCommentData",
+      },
+      {
+        model: db.Customer,
+        as: "CustomerCommentData",
+        include: [
+          {model: db.User,
+          as: ""}
+        ]
+      },
+    ],
   });
 };
 
 const commentRepo = {
   createComment,
-  getComment
+  getComment,
 };
 
 module.exports = commentRepo;

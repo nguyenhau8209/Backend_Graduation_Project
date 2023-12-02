@@ -9,6 +9,21 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Comment.hasMany(models.ImageComment, {
+        foreignKey: "commentId",
+        targetKey: "id",
+        as: "imageCommentData",
+      });
+      Comment.belongsTo(models.Product, {
+        foreignKey: "productId",
+        targetKey: "id",
+        as: "ProductCommentData",
+      });
+      Comment.belongsTo(models.Customer, {
+        foreignKey: "customerId",
+        targetKey: "id",
+        as: "CustomerCommentData",
+      });
     }
   }
   Comment.init(
