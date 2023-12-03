@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
         as: "productData",
         targetKey: "id", // Thêm dòng này
       });
+      Product.hasMany(models.Comment, {
+        foreignKey: "productId",
+        targetKey: "id",
+        as: "ProductCommentData",
+      });
     }
   }
   Product.init(
@@ -44,6 +49,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      salePrice: DataTypes.DOUBLE,
+      saleStart: DataTypes.DATE,
+      saleEnd: DataTypes.DATE,
     },
     {
       sequelize,

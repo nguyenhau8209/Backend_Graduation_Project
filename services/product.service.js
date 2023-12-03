@@ -8,6 +8,8 @@ const {
   handleSuccess,
   handleServerError,
 } = require("../utils/handleReturn");
+const db = require("../models");
+const { Op } = require("sequelize");
 
 const findProducts = async () => {
   try {
@@ -68,9 +70,9 @@ const findOneProduct = async (data) => {
 };
 
 const createProduct = async (data) => {
-  const { name, mainImage, categoryId } = data;
+  const { name, mainImage, categoryId, price, description } = data;
   //   console.log(name, mainImage, categoryId);
-  if (!name || !mainImage || !categoryId) {
+  if (!name || !mainImage || !categoryId || !price || !description) {
     return {
       error: true,
       status: STATUS_CODE.badRequest,
@@ -87,11 +89,17 @@ const createProduct = async (data) => {
       message: "Product da ton tai",
     };
   }
-  const cloudFile = await urlUploadImage(mainImage.tempFilePath, mainImage);
+  const cloudFile = await urlUploadImage(
+    mainImage.tempFilePath,
+    mainImage,
+    "product-folder"
+  );
   const newProduct = await productRepo.createProduct({
     name,
     mainImage: cloudFile,
     categoryId,
+    price,
+    description,
   });
   return {
     error: false,
@@ -115,7 +123,8 @@ const updateProduct = async (id, data, mainImage) => {
       console.log(mainImage);
       const cloudFile = await urlUploadImage(
         mainImage.mainImage.tempFilePath,
-        mainImage.mainImage
+        mainImage.mainImage,
+        "product-folder"
       );
       const updateProduct = await productRepo.updateProduct(
         { id },
@@ -157,12 +166,176 @@ const deleteProduct = async (data) => {
     return handleServerError(error.message);
   }
 };
+const filterProduct = async (data) => {
+  try {
+    const {
+      sortPrice,
+      categoryId,
+      page,
+      pageSize,
+      loadMore,
+      keyword,
+      minPrice,
+      maxPrice,
+      isNew,
+    } = data;
+
+    const whereConditions = {};
+
+    if (categoryId) {
+      whereConditions.categoryId = categoryId;
+    }
+
+    let order = [];
+    if (sortPrice === 1) {
+      order = [["price", "ASC"]];
+    } else if (sortPrice === 0) {
+      order = [["price", "DESC"]];
+    }
+
+    if (keyword) {
+      whereConditions[Op.or] = [
+        { name: { [Op.like]: `%${keyword}%` } },
+        { description: { [Op.like]: `%${keyword}%` } },
+        // Thêm các trường khác bạn muốn tìm kiếm ở đây
+      ];
+    }
+    if (minPrice !== undefined && maxPrice !== undefined) {
+      whereConditions.price = {
+        [Op.between]: [minPrice, maxPrice],
+      };
+    }
+    if (isNew) {
+      // Điều kiện để lọc sản phẩm mới (có thể sử dụng cột 'createdAt' hoặc một cột khác)
+      whereConditions.updatedAt = {
+        [Op.gte]: new Date(new Date() - 7 * 24 * 60 * 60 * 1000), // Ví dụ: Lọc sản phẩm được tạo trong vòng 7 ngày
+      };
+    }
+    const currentPage = parseInt(page, 10) || 1;
+    const itemsPerPage = parseInt(pageSize, 10) || 10;
+
+    let offset = 0;
+    if (loadMore) {
+      offset = parseInt(page, 10) * itemsPerPage;
+    } else {
+      offset = (currentPage - 1) * itemsPerPage;
+    }
+
+    const findProducts = await db.Product.findAll({
+      where: whereConditions,
+      order: order.length ? order : null,
+      limit: itemsPerPage,
+      offset: offset,
+    });
+
+    if (findProducts.length === 0) {
+      return handleNotFound("Không tìm thấy sản phẩm");
+    }
+
+    let totalCount = 0;
+    let totalPages = 0;
+
+    if (!loadMore) {
+      // Đếm tổng số sản phẩm để tính tổng số trang
+      totalCount = await db.Product.count({ where: whereConditions });
+      totalPages = Math.ceil(totalCount / itemsPerPage);
+    }
+
+    return handleSuccess("Tìm kiếm thành công", {
+      products: findProducts,
+      pagination: {
+        totalItems: totalCount,
+        totalPages: totalPages,
+        currentPage: currentPage,
+      },
+    });
+  } catch (e) {
+    return handleServerError(e?.message);
+  }
+};
+
+const productSale = async (data) => {
+  try {
+    const { id, salePrice } = data;
+    if (!id || !salePrice) {
+      return handleBadRequest("Khong duoc de trong truong du lieu");
+    }
+    const saleStart = new Date();
+    const saleEnd = new Date(); // Thời gian kết thúc sale, ví dụ: sale trong 7 ngày
+    saleEnd.setDate(saleEnd.getDate() + 7);
+
+    const product = await db.Product.findByPk(id);
+    if (product) {
+      await db.Product.update(
+        {
+          salePrice,
+          saleStart,
+          saleEnd,
+        },
+        {
+          where: {
+            id: id,
+          },
+        }
+      );
+
+      return handleSuccess("Thanh cong");
+    }
+    return handleBadRequest("Tao giam gia that bai");
+  } catch (e) {
+    return handleServerError(e?.message);
+  }
+};
+
+// Kiểm tra và cập nhật giá sản phẩm sau khi thời gian sale kết thúc
+const cron = require("node-cron");
+cron.schedule("0 0 * * *", async () => {
+  // Chạy vào mỗi đêm
+  const products = await db.Product.findAll({
+    where: { saleEnd: { [Op.lt]: new Date() } },
+  });
+  products.forEach(async (product) => {
+    await Product.update(
+      {
+        price: product.price, // Quay trở về giá cũ
+        salePrice: null,
+        saleStart: null,
+        saleEnd: null,
+      },
+      {
+        where: {
+          id: product.id,
+        },
+      }
+    );
+  });
+});
+
+const getProductSale = async () => {
+  try {
+    const productsOnSale = await db.Product.findAll({
+      where: {
+        saleEnd: { [Op.gte]: new Date() }, // Lấy những sản phẩm có saleEnd lớn hơn hoặc bằng hiện tại
+        salePrice: { [Op.ne]: null }, // Lấy những sản phẩm có giá sale khác null
+      },
+    });
+    if (productsOnSale.length === 0) {
+      return handleNotFound("Khong tim thay san pham nao dang sale");
+    }
+    return handleSuccess("Thanh cong", productsOnSale);
+  } catch (e) {
+    return handleServerError(e?.message);
+  }
+};
 const productService = {
   findProducts,
   findOneProduct,
   createProduct,
   updateProduct,
   deleteProduct,
+  filterProduct,
+  productSale,
+  getProductSale,
 };
 
 module.exports = productService;

@@ -44,12 +44,13 @@ const findOneProduct = async (filter = {}) => {
           { model: db.Size, as: "sizeData", attributes: ["id", "name"] },
         ],
       },
+      { model: db.Comment, as: "ProductCommentData" },
     ],
   });
 };
 
-const createProduct = async ({ name, mainImage, categoryId }) => {
-  return await db.Product.create({ name, mainImage, categoryId });
+const createProduct = async ({ name, mainImage, categoryId, price, description }) => {
+  return await db.Product.create({ name, mainImage, categoryId, price, description });
 };
 
 const updateProduct = async (filter, data) => {
@@ -59,6 +60,8 @@ const updateProduct = async (filter, data) => {
       name: data?.data?.name,
       mainImage: data?.mainImage,
       categoryId: data?.data?.categoryId,
+      price: data?.data?.price,
+      description: data?.data?.description,
     },
     {
       where: filter,
