@@ -70,9 +70,9 @@ const findOneProduct = async (data) => {
 };
 
 const createProduct = async (data) => {
-    const {name, mainImage, categoryId} = data;
+    const {name, mainImage, categoryId, price, description} = data;
     //   console.log(name, mainImage, categoryId);
-    if (!name || !mainImage || !categoryId) {
+    if (!name || !mainImage || !categoryId || !price || !description) {
         return {
             error: true,
             status: STATUS_CODE.badRequest,
@@ -94,6 +94,8 @@ const createProduct = async (data) => {
         name,
         mainImage: cloudFile,
         categoryId,
+        price,
+        description,
     });
     return {
         error: false,
@@ -237,14 +239,82 @@ const filterProduct = async (data) => {
     }
 }
 
+const productSale = async (data) => {
+    try {
+        const {id, salePrice} = data;
+        if (!id || !salePrice) {
+            return handleBadRequest("Khong duoc de trong truong du lieu");
+        }
+        const saleStart = new Date();
+        const saleEnd = new Date(); // Thời gian kết thúc sale, ví dụ: sale trong 7 ngày
+        saleEnd.setDate(saleEnd.getDate() + 7);
 
+        const product = await db.Product.findByPk(id);
+        if (product) {
+            await db.Product.update({
+                salePrice,
+                saleStart,
+                saleEnd
+            }, {
+                where: {
+                    id: id
+                }
+            });
+
+            return handleSuccess("Thanh cong");
+        }
+        return handleBadRequest("Tao giam gia that bai");
+    } catch (e) {
+        return handleServerError(e?.message)
+    }
+}
+
+// Kiểm tra và cập nhật giá sản phẩm sau khi thời gian sale kết thúc
+const cron = require('node-cron');
+cron.schedule('0 0 * * *', async () => { // Chạy vào mỗi đêm
+    const products = await db.Product.findAll({where: {saleEnd: {[Op.lt]: new Date()}}});
+    products.forEach(async (product) => {
+        await Product.update(
+            {
+                price: product.price, // Quay trở về giá cũ
+                salePrice: null,
+                saleStart: null,
+                saleEnd: null
+            },
+            {
+                where: {
+                    id: product.id
+                }
+            }
+        );
+    });
+});
+
+const getProductSale = async () => {
+    try {
+        const productsOnSale = await db.Product.findAll({
+            where: {
+                saleEnd: { [Op.gte]: new Date() }, // Lấy những sản phẩm có saleEnd lớn hơn hoặc bằng hiện tại
+                salePrice: { [Op.ne]: null } // Lấy những sản phẩm có giá sale khác null
+            }
+        });
+        if(productsOnSale.length === 0) {
+            return handleNotFound("Khong tim thay san pham nao dang sale");
+        }
+        return handleSuccess("Thanh cong", productsOnSale)
+    }catch (e) {
+        return handleServerError(e?.message)
+    }
+}
 const productService = {
     findProducts,
     findOneProduct,
     createProduct,
     updateProduct,
     deleteProduct,
-    filterProduct
+    filterProduct,
+    productSale,
+    getProductSale,
 };
 
 module.exports = productService;

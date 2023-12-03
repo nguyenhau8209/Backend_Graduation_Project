@@ -43,11 +43,13 @@ const findOneProduct = async (req, res) => {
 const createProduct = async (req, res) => {
     try {
         const {mainImage} = req.files;
-        const {name, categoryId} = req.body;
+        const {name, categoryId, price, description} = req.body;
         const data = await productService.createProduct({
             name,
             mainImage,
             categoryId,
+            price,
+            description,
         });
         console.log(data);
         if (data?.error) {
@@ -112,6 +114,37 @@ const filterProduct = async (req, res) => {
         return res.status(STATUS_CODE.errorServer).json({message: e?.message})
     }
 }
+
+const saleProduct = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const {salePrice} = req.body;
+        const data = await productService.productSale({id, salePrice});
+        if (data?.error) {
+            return res.status(data?.status).json({message: data?.message});
+        }
+        return res.status(data?.status).json({data: data?.data, message: data?.message})
+    } catch (e) {
+        return res.status(STATUS_CODE.errorServer).json({message: e.message})
+    }
+}
+const getProductSale = async (req, res) => {
+    try {
+        const data = await productService.getProductSale();
+        if (data?.error) {
+            return res.status(data?.status).json({
+                message: data?.message,
+            });
+        }
+        return res
+            .status(data?.status)
+            .json({ data: data?.data, message: data?.message});
+    } catch (error) {
+        return res
+            .status(STATUS_CODE.errorServer)
+            .json({status: STATUS_CODE.errorServer, message: error.message});
+    }
+};
 const productController = {
     findOneProduct,
     createProduct,
@@ -119,6 +152,8 @@ const productController = {
     updateProduct,
     deleteProduct,
     filterProduct,
+    saleProduct,
+    getProductSale,
 };
 
 module.exports = productController;

@@ -4,6 +4,8 @@ const productRouter = express.Router();
 const productController = require("../controller/product.controller");
 module.exports = productRouter;
 productRouter.get("/filter", productController.filterProduct);
+productRouter.get("/sale", productController.getProductSale);
+productRouter.put("/sale/:id", productController.saleProduct);
 productRouter.post("/", productController.createProduct);
 productRouter.get("/", productController.findProducts);
 productRouter.get("/:id", productController.findOneProduct);
