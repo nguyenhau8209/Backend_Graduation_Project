@@ -77,7 +77,6 @@ const createProduct = async (data) => {
       message: "Vui long nhap du du lieu",
     };
   }
-
   const findProduct = await productRepo.findOneProduct({ name });
   console.log("vao tim kiem");
   if (findProduct) {

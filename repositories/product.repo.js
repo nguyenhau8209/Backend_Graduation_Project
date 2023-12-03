@@ -44,6 +44,7 @@ const findOneProduct = async (filter = {}) => {
           { model: db.Size, as: "sizeData", attributes: ["id", "name"] },
         ],
       },
+      { model: db.Comment, as: "ProductCommentData" },
     ],
   });
 };

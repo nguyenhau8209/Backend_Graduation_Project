@@ -9,16 +9,27 @@ const getComment = async (filter = {}) => {
     where: filter,
     include: [
       {
-        model: db.Product,
-        as: "ProductCommentData",
-      },
-      {
         model: db.Customer,
         as: "CustomerCommentData",
+        attributes: {
+          exclude: ["createdAt", "updatedAt", "deletedAt"],
+        },
         include: [
-          {model: db.User,
-          as: ""}
-        ]
+          {
+            model: db.User,
+            as: "customerData",
+            attributes: {
+              exclude: ["createdAt", "updatedAt", "deletedAt"],
+            },
+          },
+        ],
+      },
+      {
+        model: db.ImageComment,
+        as: "imageCommentData",
+        attributes: {
+          exclude: ["createdAt", "updatedAt", "deletedAt"],
+        },
       },
     ],
   });
