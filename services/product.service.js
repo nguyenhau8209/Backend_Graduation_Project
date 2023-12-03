@@ -89,7 +89,7 @@ const createProduct = async (data) => {
             message: "Product da ton tai",
         };
     }
-    const cloudFile = await urlUploadImage(mainImage.tempFilePath, mainImage);
+    const cloudFile = await urlUploadImage(mainImage.tempFilePath, mainImage, "product-folder");
     const newProduct = await productRepo.createProduct({
         name,
         mainImage: cloudFile,
@@ -119,7 +119,8 @@ const updateProduct = async (id, data, mainImage) => {
             console.log(mainImage);
             const cloudFile = await urlUploadImage(
                 mainImage.mainImage.tempFilePath,
-                mainImage.mainImage
+                mainImage.mainImage,
+                "product-folder"
             );
             const updateProduct = await productRepo.updateProduct(
                 {id},
