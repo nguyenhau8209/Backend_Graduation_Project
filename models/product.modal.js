@@ -49,6 +49,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      salePrice: DataTypes.DOUBLE,
+      saleStart: DataTypes.DATE,
+      saleEnd: DataTypes.DATE,
     },
     {
       sequelize,
