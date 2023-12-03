@@ -36,7 +36,7 @@ const createComment = async (data, dataUser, dataImage) => {
     }
 
     image.forEach(async (element) => {
-      const cloudFile = await urlUploadImage(element.tempFilePath, element);
+      const cloudFile = await urlUploadImage(element.tempFilePath, element, "ImageComment");
       await imageCommentRepo.createImageComment({
         image: cloudFile,
         commentId: createComment.id,
