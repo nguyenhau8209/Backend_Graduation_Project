@@ -41,7 +41,38 @@ const signUp = async (data, avatarFile) => {
         return handleServerError(e?.message);
     }
 }
+const createAccount = async (data, avatarFile) => {
+    try {
 
+        const {username, password, role, fullname} = data;
+        if (!username || !password || !role) {
+            return handleBadRequest("Khong duoc de trong username, password, role");
+        }
+        const findAdmin = await adminRepo.getAdmin({username});
+        if (findAdmin) {
+            return handleBadRequest("Username da ton tai");
+        }
+        let cloudFile;
+        if (avatarFile) {
+            const {avatar} = avatarFile;
+            console.log("vaooo")
+            cloudFile = await urlUploadImage(avatar.tempFilePath, avatar, "admin-image");
+        }
+        const createAdmin = await adminRepo.createAdmin({
+            username,
+            password: await hashPw(password),
+            role,
+            fullname,
+            avatar: avatarFile ? cloudFile : null
+        });
+        if (!createAdmin) {
+            return handleBadRequest("Tao admin khong thanh cong");
+        }
+        return handleCreate("Tao admin thanh cong", createAdmin);
+    } catch (e) {
+        return handleServerError(e?.message);
+    }
+}
 const signIn = async (data) => {
     try {
         const {username, password} = data;
@@ -151,5 +182,5 @@ const updateAccount = async (idAccount, avatarAcount, data) => {
         return handleServerError(e?.message)
     }
 }
-const adminService = {signUp, signIn, getAccount, getAccounts, deleteAccount, updateAccount};
+const adminService = {signUp, signIn, getAccount, getAccounts, deleteAccount, updateAccount, createAccount};
 module.exports = adminService

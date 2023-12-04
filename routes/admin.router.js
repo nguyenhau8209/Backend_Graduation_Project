@@ -6,8 +6,24 @@ module.exports = adminRouter;
 // adminRouter.put("/:id", middlewareAuth.checkLogin , adminController.updateUser);
 adminRouter.post("/signup", adminController.signUp);
 adminRouter.post("/signin", adminController.signIn);
-adminRouter.get("/", adminController.getAccounts);
-adminRouter.get("/:id", adminController.getAccount);
-adminRouter.put("/:id", adminController.updateAccount);
-adminRouter.delete("/:id", adminController.deleteAccount);
+adminRouter.post("/create/account", middlewareAuth.checkLoginAdmin, (req, res, next) => {
+    req.permission = [1];
+    next()
+}, middlewareAuth.checkPermission, adminController.createAccount);
+adminRouter.get("/", middlewareAuth.checkLoginAdmin, (req, res, next) => {
+    req.permission = [1];
+    next()
+}, middlewareAuth.checkPermission, adminController.getAccounts);
+adminRouter.get("/:id", middlewareAuth.checkLoginAdmin, (req, res, next) => {
+    req.permission = [0, 1];
+    next()
+}, middlewareAuth.checkPermission, adminController.getAccount);
+adminRouter.put("/:id", middlewareAuth.checkLoginAdmin, (req, res, next) => {
+    req.permission = [0, 1];
+    next()
+}, middlewareAuth.checkPermission, adminController.updateAccount);
+adminRouter.delete("/:id", middlewareAuth.checkLoginAdmin, (req, res, next) => {
+    req.permission = [1];
+    next()
+}, middlewareAuth.checkPermission, adminController.deleteAccount);
 

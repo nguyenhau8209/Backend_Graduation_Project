@@ -11,7 +11,17 @@ const signUp = async (req, res) => {
         return res.status(STATUS_CODE.errorServer).json({message: error?.message});
     }
 }
-
+const createAccount = async (req, res) => {
+    try {
+        const data = await adminService.signUp(req.body, req.files);
+        if (data?.error) {
+            return res.status(data?.status).json({message: data?.message});
+        }
+        return res.status(data?.status).json({data: data?.data, message: data?.message})
+    } catch (error) {
+        return res.status(STATUS_CODE.errorServer).json({message: error?.message});
+    }
+}
 const signIn = async (req, res) => {
     try {
         const data = await adminService.signIn(req.body);
@@ -68,5 +78,5 @@ const updateAccount = async (req, res) => {
         return res.status(STATUS_CODE.errorServer).json({message: e?.message})
     }
 }
-const adminController = {signUp, signIn, getAccount, getAccounts, deleteAccount, updateAccount};
+const adminController = {signUp, signIn, getAccount, getAccounts, deleteAccount, updateAccount, createAccount};
 module.exports = adminController;
