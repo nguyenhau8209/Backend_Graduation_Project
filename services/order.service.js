@@ -44,9 +44,10 @@ const getOrder = async (data) => {
   }
 };
 
-const getOrders = async () => {
+const getOrders = async (data) => {
   try {
-    const findOrders = await orderRepo.getOrders();
+    console.log(data)
+    const findOrders = await orderRepo.getOrders({customerId: data?.customerId});
     if (!findOrders) {
       return handleNotFound("Khong tim thay orders");
     }

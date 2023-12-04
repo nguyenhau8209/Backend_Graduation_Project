@@ -21,7 +21,7 @@ const createInformation = async (req, res) => {
 };
 const getInformations = async (req, res) => {
   try {
-    const data = await informationService.getInformations();
+    const data = await informationService.getInformations(req.loginUser);
     if (data?.error) {
       return res.status(data?.status).json({ message: data?.message });
     }
