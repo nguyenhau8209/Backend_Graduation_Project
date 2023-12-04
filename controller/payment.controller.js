@@ -3,7 +3,7 @@ const paymentService = require("../services/payment.service");
 
 const statistics = async (req, res) => {
   try {
-    const data = await paymentService.statistics(req.body);
+    const data = await paymentService.statistics(req.query);
 
     if (data?.error) {
       return res
