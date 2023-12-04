@@ -11,7 +11,7 @@ const createSize = async (data) => {
   try {
     const { name } = data;
     if (!name) {
-      return handleServerError("Khong duoc de trong");
+      return handleBadRequest("Khong duoc de trong");
     }
     const findSize = await sizeRepo.findSize({ name });
     if (findSize) {

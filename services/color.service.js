@@ -11,11 +11,11 @@ const createColor = async (data) => {
   try {
     const { name } = data;
     if (!name) {
-      return handleServerError("Khong duoc de trong");
+      return handleBadRequest("Khong duoc de trong");
     }
     const findColor = await colorRepo.findColor({ name });
     if (findColor) {
-      return handleBadRequest("Size da ton tai");
+      return handleBadRequest("Color da ton tai");
     }
     const createColor = await colorRepo.createColor({ name });
     if (!createColor) {
