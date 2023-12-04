@@ -5,10 +5,11 @@ const orderController = require("../controller/order.controller");
 const middlewareAuth = require("../middleware/checkAuth");
 module.exports = orderRouter;
 
-orderRouter.post("/", orderController.createOrder);
+orderRouter.post("/", middlewareAuth.checkLogin, orderController.createOrder);
 orderRouter.get("/", middlewareAuth.checkLoginAdmin, (req, res, next) => {
-    req.permission = [1];
+    req.permission = [0, 1];
     next()
 }, middlewareAuth.checkPermission, orderController.getOrders);
-orderRouter.get("/:id", orderController.getOrder);
-orderRouter.delete("/:id", orderController.deleteOrder);
+orderRouter.get("/customer/", middlewareAuth.checkLogin, orderController.getOrdersCustomer)
+orderRouter.get("/:id", middlewareAuth.checkLogin, orderController.getOrder);
+orderRouter.delete("/:id", middlewareAuth.checkLogin, orderController.deleteOrder);
