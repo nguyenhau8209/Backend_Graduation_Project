@@ -8,3 +8,5 @@ orderRouter.post("/", orderController.createOrder);
 orderRouter.get("/", orderController.getOrders);
 orderRouter.get("/:id", orderController.getOrder);
 orderRouter.delete("/:id", orderController.deleteOrder);
+orderRouter.put("/:id", orderController.acceptOrder);
+orderRouter.put("/status-order/:id", orderController.updateStatusOrder);

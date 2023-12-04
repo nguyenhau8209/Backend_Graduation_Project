@@ -15,6 +15,11 @@ module.exports = {
       addressId: {
         type: Sequelize.INTEGER,
       },
+      status: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 1
+      },
       createdAt: {
         allowNull: false,
         type: "TIMESTAMP",
