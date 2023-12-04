@@ -32,9 +32,10 @@ const createInformation = async (data, dataUser) => {
   }
 };
 
-const getInformations = async () => {
+const getInformations = async (data) => {
+  console.log(data)
   try {
-    const findInformation = await informationRepo.getInformations();
+    const findInformation = await informationRepo.getInformations({customerId: data?.customerId});
     if (!findInformation) {
       return handleNotFound("Khong tim thay dia chi");
     }
