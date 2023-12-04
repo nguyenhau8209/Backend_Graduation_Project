@@ -30,6 +30,11 @@ module.exports = (sequelize, DataTypes) => {
     {
       customerId: DataTypes.INTEGER,
       addressId: DataTypes.INTEGER,
+      status:{
+        type: DataTypes.INTEGER ,
+        allowNull: false,
+        defaultValue: 1
+      } 
     },
     {
       sequelize,
