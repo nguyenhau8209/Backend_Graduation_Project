@@ -14,8 +14,10 @@ const orderRouter = require("./routes/order.router");
 const orderItemRouter = require("./routes/orderItem.router");
 const informationRouter = require("./routes/information.router");
 const discountCodeRouter = require("./routes/discountCode.router");
+const commentRouter = require("./routes/comment.router");
 const customerRouter = require("./routes/customer.router");
 const adminRouter = require("./routes/admin.router");
+const paymentRouter = require("./routes/payment.router");
 const fileUpload = require("express-fileupload");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -46,7 +48,9 @@ app.use("/order", orderRouter);
 app.use("/order/item", orderItemRouter);
 app.use("/information", informationRouter);
 app.use("/discountCode", discountCodeRouter);
+app.use("/comment", commentRouter);
 app.use("/customer", customerRouter);
+app.use("/statistics", paymentRouter)
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

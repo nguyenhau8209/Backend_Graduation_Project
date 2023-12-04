@@ -76,6 +76,31 @@ const deleteOrder = async (data) => {
     return handleServerError(error?.message);
   }
 };
-const orderService = { createOrder, getOrder, getOrders, deleteOrder };
+
+const updateStatusOrder = async (id, data) => {
+  if (!id) {
+    return handleBadRequest("Khong duoc de trong");
+  }
+  try {
+    const getDataOrder = await orderRepo.getOrder({ id });
+
+    if (!getDataOrder) {
+      return handleNotFound("Khong tim thay order");
+    }
+
+    const updateStatusOrder = await orderRepo.updateStatusOrder({ id }, {data});
+    return handleSuccess("Cap nhat thanh cong", updateStatusOrder);
+  } catch (error) {
+    return handleServerError(error?.message);
+  }
+};
+
+const orderService = {
+  createOrder,
+  getOrder,
+  getOrders,
+  deleteOrder,
+  updateStatusOrder,
+};
 
 module.exports = orderService;

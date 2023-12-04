@@ -13,3 +13,9 @@ orderRouter.get("/", middlewareAuth.checkLoginAdmin, (req, res, next) => {
 orderRouter.get("/customer/", middlewareAuth.checkLogin, orderController.getOrdersCustomer)
 orderRouter.get("/:id", middlewareAuth.checkLogin, orderController.getOrder);
 orderRouter.delete("/:id", middlewareAuth.checkLogin, orderController.deleteOrder);
+orderRouter.post("/", orderController.createOrder);
+orderRouter.get("/", orderController.getOrders);
+orderRouter.get("/:id", orderController.getOrder);
+orderRouter.delete("/:id", orderController.deleteOrder);
+orderRouter.put("/:id", orderController.acceptOrder);
+orderRouter.put("/status-order/:id", orderController.updateStatusOrder);

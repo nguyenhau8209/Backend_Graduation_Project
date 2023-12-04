@@ -95,6 +95,22 @@ const deleteOrder = async (filter) => {
   });
 };
 
-const orderRepo = { createOrder, getOrder, getOrders, deleteOrder };
+const updateStatusOrder = async (filter, data) => {
+  console.log(filter, data);
+  return await db.Order.update(
+    {
+      status: data?.data,
+    },
+    { where: filter }
+  );
+};
+
+const orderRepo = {
+  createOrder,
+  getOrder,
+  getOrders,
+  deleteOrder,
+  updateStatusOrder,
+};
 
 module.exports = orderRepo;
