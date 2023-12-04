@@ -21,14 +21,56 @@ const createPayment = async ({
 };
 
 const statistics = async (filter = {}) => {
-  return await db.Payment.findAlld({
-    attributes: [[fn("SUM", col("total")), "totalPrice"]],
-    where: {
-      ...filter,
-      createdAt: {
-        [Op.between]: [filter.startDate, filter.endDate],
-      },
-    },
+  let queryCondition;
+  let dateFormat;
+
+  switch (true) {
+    case filter.filter == 1:
+      // Ngày
+      queryCondition = {
+        createdAt: {
+          [Op.between]: [
+            `${filter.startDate} 01:00:00`,
+            `${filter.endDate} 23:59:59.999`,
+          ],
+        },
+      };
+      dateFormat = "%Y-%m-%d";
+      break;
+    case filter.filter == 2:
+      // Tháng
+      queryCondition = {
+        createdAt: {
+          [Op.between]: [
+            `${filter.startDate}-01 01:00:00`,
+            `${filter.endDate}-31 23:59:59.999`,
+          ],
+        },
+      };
+      dateFormat = "%Y-%m";
+      break;
+    case filter.filter == 3:
+      // Năm
+      queryCondition = {
+        createdAt: {
+          [Op.between]: [
+            `${filter.startDate}-01-01 01:00:00`,
+            `${filter.endDate}-12-31 23:59:59.999`,
+          ],
+        },
+      };
+      dateFormat = "%Y";
+      break;
+    default:
+      throw new Error("Invalid date format");
+  }
+  return await db.Payment.findAll({
+    attributes: [
+      [fn("SUM", col("total")), "totalPrice"],
+      [fn("DATE_FORMAT", col("createdAt"), dateFormat), "date"],
+    ],
+    where: queryCondition,
+    group: ["date"],
   });
 };
 
