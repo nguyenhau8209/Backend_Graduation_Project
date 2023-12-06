@@ -12,9 +12,10 @@ const {
 const urlUploadImage = require("../utils/cloudinary");
 
 const createComment = async (data, dataUser, dataImage) => {
+  console.log(dataUser)
   try {
     const { rate, content, productId } = data;
-    const { image } = dataImage;
+
 
     if (!rate || !productId) {
       return handleBadRequest("Phai danh gia sao, khong tim thay productId");
@@ -25,28 +26,48 @@ const createComment = async (data, dataUser, dataImage) => {
     if (!findProduct) {
       return handleNotFound("Khong tim thay findProduct");
     }
-    const createComment = await commentRepo.createComment({
-      rate,
-      content,
-      customerId: dataUser?.customerId,
-      productId,
-    });
-    if (!createComment) {
-      return handleBadRequest("Tao comment khong thanh cong");
+
+    let createComment = null;
+
+
+    if (dataImage && dataImage.image && dataImage.image.length > 0) {
+      createComment = await commentRepo.createComment({
+        rate,
+        content,
+        customerId: dataUser?.customerId,
+        productId,
+      });
+
+      if (!createComment) {
+        return handleBadRequest("Tao comment khong thanh cong");
+      }
+
+      for (const element of dataImage.image) {
+        const cloudFile = await urlUploadImage(element.tempFilePath, element, "ImageComment");
+        await imageCommentRepo.createImageComment({
+          image: cloudFile,
+          commentId: createComment.id,
+        });
+      }
+    } else {
+      createComment = await commentRepo.createComment({
+        rate,
+        content,
+        customerId: dataUser?.customerId,
+        productId,
+      });
+
+      if (!createComment) {
+        return handleBadRequest("Tao comment khong thanh cong");
+      }
     }
 
-    image.forEach(async (element) => {
-      const cloudFile = await urlUploadImage(element.tempFilePath, element, "ImageComment");
-      await imageCommentRepo.createImageComment({
-        image: cloudFile,
-        commentId: createComment.id,
-      });
-    });
     return handleCreate("Thanh cong", createComment);
   } catch (error) {
     return handleServerError(error?.message);
   }
 };
+
 
 const getComment = async () => {
   try {

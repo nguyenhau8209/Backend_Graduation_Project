@@ -27,7 +27,7 @@ const checkLogin = async (req, res, next) => {
             }),
             cartRepo.getCart({id: data?.cartId}),
         ]);
-        // console.log(user, cart, customer);
+        console.log(user, cart, customer);
         if (!user) {
             return res.status(STATUS_CODE.notFounded).json({
                 error: true,
