@@ -26,6 +26,7 @@ const updateCartItem = async (filter, data) => {
   return db.CartItem.update(
     {
       productSizeColorId: data?.productSizeColorId,
+      amount: data?.amount
     },
     {
       where: filter,
