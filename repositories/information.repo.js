@@ -20,8 +20,10 @@ const createInformation = async ({
   });
 };
 
-const getInformations = async () => {
-  return await db.Information.findAll();
+const getInformations = async (filter) => {
+  return await db.Information.findAll({
+    where: filter
+  });
 };
 
 const getInformation = async (filter) => {

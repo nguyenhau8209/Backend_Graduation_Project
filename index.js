@@ -16,6 +16,7 @@ const informationRouter = require("./routes/information.router");
 const discountCodeRouter = require("./routes/discountCode.router");
 const commentRouter = require("./routes/comment.router");
 const customerRouter = require("./routes/customer.router");
+const adminRouter = require("./routes/admin.router");
 const paymentRouter = require("./routes/payment.router");
 const fileUpload = require("express-fileupload");
 const dotenv = require("dotenv");
@@ -34,6 +35,7 @@ app.use(
 );
 //auth
 app.use("/auth", authRouter);
+app.use("/admin", adminRouter);
 app.use("/category", categoryRouter);
 app.use("/product", productRouter);
 app.use("/size", sizeRouter);

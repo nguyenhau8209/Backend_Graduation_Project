@@ -76,10 +76,11 @@ const deleteCartItem = async (req, res) => {
 const updateCartItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const { productSizeColorId } = req.body;
+    const { productSizeColorId, amount } = req.body;
     const data = await cartItemService.updateCartItem({
       id,
       productSizeColorId,
+      amount
     });
     if (data?.error) {
       return res

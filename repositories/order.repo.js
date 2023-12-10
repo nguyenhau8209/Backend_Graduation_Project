@@ -64,8 +64,9 @@ const getOrder = async (filter) => {
   });
 };
 
-const getOrders = async () => {
+const getOrders = async (filter) => {
   return await db.Order.findAll({
+    where: filter,
     include: [
       {
         model: db.Payment,

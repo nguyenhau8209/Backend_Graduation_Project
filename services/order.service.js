@@ -44,8 +44,9 @@ const getOrder = async (data) => {
   }
 };
 
-const getOrders = async () => {
+const getOrders = async (data) => {
   try {
+    console.log(data)
     const findOrders = await orderRepo.getOrders();
     if (!findOrders) {
       return handleNotFound("Khong tim thay orders");
@@ -55,7 +56,18 @@ const getOrders = async () => {
     return handleServerError(error?.message);
   }
 };
-
+const getOrdersByCustomer = async (data) => {
+  try {
+    console.log(data)
+    const findOrders = await orderRepo.getOrders({customerId: data?.customerId});
+    if (!findOrders) {
+      return handleNotFound("Khong tim thay orders");
+    }
+    return handleSuccess("Thanh cong", findOrders);
+  } catch (error) {
+    return handleServerError(error?.message);
+  }
+};
 const deleteOrder = async (data) => {
   try {
     const { id } = data;
@@ -100,6 +112,7 @@ const orderService = {
   getOrders,
   deleteOrder,
   updateStatusOrder,
+  getOrdersByCustomer
 };
 
 module.exports = orderService;
