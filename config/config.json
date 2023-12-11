@@ -1,11 +1,19 @@
 {
   "development": {
-    "username": "freedb_nguyenhau8209",
-    "password": "E$?Ww?ZDwH?2DWr",
-    "database": "freedb_graduation_project",
-    "host": "sql.freedb.tech",
+    "username": "Zftegg6LwCLyznA.root",
+    "password": "NZDLw7zEHQ3W7AAz",
+    "database": "test",
+    "host": "gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
     "dialect": "mysql",
-    "timezone": "+07:00"
+    "timezone": "+07:00",
+    "port": 4000,
+    "dialectOptions": {
+      "ssl": {
+        "minVersion": "TLSv1.2",
+        "rejectUnauthorized": false,
+        "ca": "/etc/ssl/certs/ca-certificates.crt"
+      }
+    }
   },
   "test": {
     "username": "root",
