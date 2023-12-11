@@ -26,6 +26,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      dob: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: "01/01/1970",
+      },
       createdAt: {
         allowNull: false,
         type: "TIMESTAMP",
@@ -38,7 +43,7 @@ module.exports = {
       },
       deletedAt: {
         allowNull: true,
-        type: "TIMESTAMP",
+        type: Sequelize.DATE,
       },
     });
   },

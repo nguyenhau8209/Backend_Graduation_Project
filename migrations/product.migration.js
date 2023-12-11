@@ -21,6 +21,26 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      price: {
+        type: Sequelize.DOUBLE,
+        allowNull: false,
+      },
+      description: {
+        type: Sequelize.STRING(10000),
+        allowNull: false,
+      },
+      salePrice: {
+        type: Sequelize.DOUBLE,
+        allowNull: true,
+      },
+      saleStart: {
+        allowNull: true,
+        type: Sequelize.DATE,
+      },
+      saleEnd: {
+        allowNull: true,
+        type: Sequelize.DATE,
+      },
       createdAt: {
         allowNull: false,
         type: "TIMESTAMP",

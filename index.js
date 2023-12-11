@@ -8,6 +8,16 @@ const sizeRouter = require("./routes/size.router");
 const colorRouter = require("./routes/color.router");
 const imageColorRouter = require("./routes/imageColor.router");
 const productSizeColorRouter = require("./routes/productSizeColor.router");
+const cartItemRouter = require("./routes/cartItem.router");
+const cartRouter = require("./routes/cart.router");
+const orderRouter = require("./routes/order.router");
+const orderItemRouter = require("./routes/orderItem.router");
+const informationRouter = require("./routes/information.router");
+const discountCodeRouter = require("./routes/discountCode.router");
+const commentRouter = require("./routes/comment.router");
+const customerRouter = require("./routes/customer.router");
+const adminRouter = require("./routes/admin.router");
+const paymentRouter = require("./routes/payment.router");
 const fileUpload = require("express-fileupload");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -25,12 +35,23 @@ app.use(
 );
 //auth
 app.use("/auth", authRouter);
+app.use("/admin", adminRouter);
 app.use("/category", categoryRouter);
 app.use("/product", productRouter);
 app.use("/size", sizeRouter);
 app.use("/color", colorRouter);
 app.use("/image-color", imageColorRouter);
 app.use("/product-size-color", productSizeColorRouter);
+app.use("/cart/item", cartItemRouter);
+app.use("/cart", cartRouter);
+app.use("/order", orderRouter);
+app.use("/order/item", orderItemRouter);
+app.use("/information", informationRouter);
+app.use("/discountCode", discountCodeRouter);
+app.use("/comment", commentRouter);
+app.use("/customer", customerRouter);
+app.use("/statistics", paymentRouter)
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });

@@ -27,8 +27,8 @@ const uploadImage = async (file, image, folder) => {
   return imageUpload;
 };
 
-const urlUploadImage = async (tempFilePath, image) => {
-  const cloudFile = await uploadImage(tempFilePath, image, "category-image");
+const urlUploadImage = async (tempFilePath, image, folder = "category-image") => {
+  const cloudFile = await uploadImage(tempFilePath, image, folder);
   if (!cloudFile) {
     return handleBadRequest("Lỗi upload ảnh");
   }

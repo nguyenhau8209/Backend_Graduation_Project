@@ -21,7 +21,7 @@ const createCategory = async (data) => {
   if (findCategory) {
     return handleNotFound("Khong tim thay category");
   }
-  const cloudFile = await urlUploadImage(image.tempFilePath, image);
+  const cloudFile = await urlUploadImage(image.tempFilePath, image, "category-image");
   const newCategory = await categoryRepo.createCategory({
     name,
     image: cloudFile,
@@ -75,7 +75,8 @@ const updateCategory = async (id, data, image) => {
     if (image) {
       const cloudFile = await urlUploadImage(
         image.image.tempFilePath,
-        image.image
+        image.image,
+          "category-image"
       );
       const updateCategory = await categoryRepo.updateCategory(
         { id },
