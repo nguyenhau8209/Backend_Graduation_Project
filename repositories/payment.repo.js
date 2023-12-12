@@ -124,6 +124,74 @@ const statistics = async (filter = {}) => {
     nest: true,
   });
 
+  const totalRevenue = await db.Payment.findAll({
+    attributes: [[fn("SUM", col("total")), "totalPrice"]],
+    raw: true,
+    nest: true,
+  });
+  const totalCustomer = await db.Customer.findAll({
+    attributes: [[fn("COUNT", col("*")), "totalCustomer"]],
+    raw: true,
+    nest: true,
+  });
+
+  const InventoryNumber = await db.Product.findAll({
+    attributes: [
+      ["id", "productId"],
+      ["name", "productName"],
+      [fn("SUM", col("productData.amount")), "productAmount"],
+    ],
+    include: [
+      {
+        model: db.ProductSizeColor,
+        as: "productData",
+        attributes: [],
+        group: ["productAmount"],
+      },
+    ],
+    group: ["productId", "productName"],
+    raw: true,
+    nest: true,
+  });
+
+  // const top5Customers = await db.Customer.findAll({
+  //   attributes: [
+  //     ["id", "customerId"],
+  //     ["customerData.name", "customerName"],
+  //     [fn("COUNT", col("customerOrderData")), "totalOrder"],
+  //     [fn("SUM", col("paymentData.total")), "totalPrice"],
+  //   ],
+  //   include: [
+  //     { 
+  //       model: db.User,
+  //       as: "customerData",
+  //       attributes: []
+  //     }
+  //   ],
+  //   include: [
+  //     {
+  //       model: db.Order,
+  //       as: "customerOrderData",
+  //       attributes: [],
+
+  //       include: [
+  //         {
+  //           model: db.Payment,
+  //           as: "paymentData",
+  //           attributes: [],
+  //           group: ["totalPrice"],
+  //         },
+  //       ],
+  //       group: ["totalOrder"],
+  //     },
+  //   ],
+  //   group: ["customerId", "customerName"],
+  //   order: [[fn("SUM", col("paymentData.total")), "DESC"]],
+  //   limit: 5,
+  //   raw: true,
+  //   nest: true,
+  // });
+
   const formattedResult = [
     {
       name: "Tổng doanh thu",
@@ -148,6 +216,22 @@ const statistics = async (filter = {}) => {
         totalAmount: entry.totalAmount,
       })),
     },
+    {
+      name: "Tổng doanh thu",
+      data: totalRevenue,
+    },
+    {
+      name: "Tổng số lượng khách hàng",
+      data: totalCustomer,
+    },
+    {
+      name: "Số lượng sản phẩm tồn kho",
+      data: InventoryNumber,
+    },
+    // {
+    //   name: "Top 5 khách hàng thân thiết",
+    //   data: top5Customers,
+    // },
   ];
 
   return formattedResult;
