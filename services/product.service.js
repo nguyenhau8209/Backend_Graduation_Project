@@ -179,7 +179,6 @@ const filterProduct = async (data) => {
             maxPrice,
             isNew,
         } = data;
-
         const whereConditions = {};
 
         if (categoryId) {
@@ -195,8 +194,12 @@ const filterProduct = async (data) => {
 
         if (keyword) {
             whereConditions[Op.or] = [
-                {name: {[Op.like]: `%${keyword}%`}},
-                {description: {[Op.like]: `%${keyword}%`}},
+                sequelize.where(sequelize.fn('LOWER', sequelize.col('name')), {
+                    [Op.like]: `%${keyword.toLowerCase()}%`
+                }),
+                sequelize.where(sequelize.fn('LOWER', sequelize.col('description')), {
+                    [Op.like]: `%${keyword.toLowerCase()}%`
+                }),
                 // Thêm các trường khác bạn muốn tìm kiếm ở đây
             ];
         }
@@ -311,6 +314,7 @@ const productSale = async (data) => {
 
 // Kiểm tra và cập nhật giá sản phẩm sau khi thời gian sale kết thúc
 const cron = require("node-cron");
+const sequelize = require("sequelize");
 cron.schedule("0 0 * * *", async () => {
     // Chạy vào mỗi đêm
     const products = await db.Product.findAll({
