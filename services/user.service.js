@@ -150,9 +150,67 @@ const updateUser = async (id, avatar, data) => {
     }
 };
 
+const { Op } = require('sequelize');
+const db = require("../models");
+const sequelize = require("sequelize");
+
+const filterUsers = async (filterOptions) => {
+    try {
+        const {
+            searchKeyword,
+            page,
+            pageSize,
+        } = filterOptions;
+
+        const whereConditions = {};
+
+        if (searchKeyword) {
+            whereConditions[Op.or] = [
+                sequelize.where(sequelize.fn('LOWER', sequelize.col('userId')), {
+                    [Op.like]: `%${searchKeyword.toLowerCase()}%`
+                }),
+                sequelize.where(sequelize.fn('LOWER', sequelize.col('name')), {
+                    [Op.like]: `%${searchKeyword.toLowerCase()}%`
+                }),
+                sequelize.where(sequelize.fn('LOWER', sequelize.col('email')), {
+                    [Op.like]: `%${searchKeyword.toLowerCase()}%`
+                }),
+            ];
+        }
+
+        const currentPage = parseInt(page, 10) || 1;
+        const itemsPerPage = parseInt(pageSize, 10) || 10;
+        const offset = (currentPage - 1) * itemsPerPage;
+
+        const users = await db.User.findAndCountAll({
+            where: whereConditions,
+            limit: itemsPerPage,
+            offset: offset,
+        });
+        if(!users) {
+            return handleNotFound("Khong tim thay khach hang nao");
+        }
+        const totalUsers = users.count;
+        const totalPages = Math.ceil(totalUsers / itemsPerPage);
+
+        return handleSuccess("Thanh cong", {
+            users: users.rows,
+            pagination: {
+                totalItems: totalUsers,
+                totalPages: totalPages,
+                currentPage: currentPage,
+            },
+        })
+    } catch (error) {
+       return handleServerError(error?.message)
+    }
+};
+
+
 const userService = {
     login,
-    updateUser
+    updateUser,
+    filterUsers
 };
 
 module.exports = userService;
