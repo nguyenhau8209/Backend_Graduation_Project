@@ -5,6 +5,7 @@ const categoryController = require("../controller/category.controller");
 const middlewareAuth = require("../middleware/checkAuth");
 module.exports = categoryRouter;
 
+categoryRouter.get("/filter", categoryController.filterCategory)
 categoryRouter.post("/admin/category", middlewareAuth.checkLoginAdmin, (req, res, next) => {
     req.permission = [1];
     next()

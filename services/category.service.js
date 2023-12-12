@@ -158,6 +158,56 @@ const restoreCategory = async (data) => {
     };
   }
 };
+
+const { Op } = require('sequelize');
+const db = require("../models");
+const sequelize = require("sequelize");
+
+const filterCategories = async (filterOptions) => {
+  console.log("vaooo filter")
+  try {
+    const { searchKeyword, page, pageSize } = filterOptions;
+
+    const whereConditions = {};
+
+    if (searchKeyword) {
+      whereConditions[Op.or] = [
+        sequelize.where(sequelize.fn('LOWER', sequelize.col('name')), {
+          [Op.like]: `%${searchKeyword.toLowerCase()}%`
+        }),
+        // Thêm các trường khác bạn muốn tìm kiếm ở đây
+      ];
+    }
+
+    const currentPage = parseInt(page, 10) || 1;
+    const itemsPerPage = parseInt(pageSize, 10) || 10;
+    const offset = (currentPage - 1) * itemsPerPage;
+
+    const categories = await db.Category.findAndCountAll({
+      where: whereConditions,
+      limit: itemsPerPage,
+      offset: offset,
+
+    });
+    if (!categories) {
+      return handleNotFound("Khong tim thay category");
+    }
+    const totalCategories = categories.count;
+    const totalPages = Math.ceil(totalCategories / itemsPerPage);
+
+    return handleSuccess("Thanh cong", {
+      categories: categories.rows,
+      pagination: {
+        totalItems: totalCategories,
+        totalPages: totalPages,
+        currentPage: currentPage,
+      },
+    })
+  } catch (error) {
+    return handleServerError(error?.message)
+  }
+};
+
 const categoryService = {
   createCategory,
   findCategories,
@@ -165,6 +215,7 @@ const categoryService = {
   updateCategory,
   deleteCategory,
   restoreCategory,
+  filterCategories
 };
 
 module.exports = categoryService;
