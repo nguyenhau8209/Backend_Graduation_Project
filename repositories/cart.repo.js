@@ -21,7 +21,7 @@ const getCart = async (filter) => {
               {
                 model: db.Product,
                 as: "productData",
-                attributes: ["id", "name", "mainImage"],
+                // attributes: ["id", "name", "mainImage"],
                 include: [
                   {
                     model: db.Category,

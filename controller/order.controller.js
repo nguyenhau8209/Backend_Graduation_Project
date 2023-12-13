@@ -56,7 +56,7 @@ const getOrders = async (req, res) => {
 };
 const getOrdersCustomer = async (req, res) => {
   try {
-    const data = await orderService.getOrders(req.loginUser);
+    const data = await orderService.getOrdersByCustomer(req.loginUser);
     if (data?.error) {
       return res
           .status(data?.status)

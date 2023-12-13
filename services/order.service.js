@@ -8,6 +8,18 @@ const {
   handleSuccess,
 } = require("../utils/handleReturn");
 
+var admin = require("firebase-admin");
+
+var serviceAccount = require("../config/serviceAccountKey.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL:
+    "https://md14datn-1ef2d-default-rtdb.asia-southeast1.firebasedatabase.app",
+});
+
+const messaging = admin.messaging();
+
 const createOrder = async (data) => {
   try {
     const { customerId } = data;
@@ -47,6 +59,18 @@ const getOrder = async (data) => {
 const getOrders = async (data) => {
   try {
     console.log(data)
+    const findOrders = await orderRepo.getOrders();
+    if (!findOrders) {
+      return handleNotFound("Khong tim thay orders");
+    }
+    return handleSuccess("Thanh cong", findOrders);
+  } catch (error) {
+    return handleServerError(error?.message);
+  }
+};
+const getOrdersByCustomer = async (data) => {
+  try {
+    console.log(data)
     const findOrders = await orderRepo.getOrders({customerId: data?.customerId});
     if (!findOrders) {
       return handleNotFound("Khong tim thay orders");
@@ -56,7 +80,6 @@ const getOrders = async (data) => {
     return handleServerError(error?.message);
   }
 };
-
 const deleteOrder = async (data) => {
   try {
     const { id } = data;
@@ -88,10 +111,58 @@ const updateStatusOrder = async (id, data) => {
       return handleNotFound("Khong tim thay order");
     }
 
-    const updateStatusOrder = await orderRepo.updateStatusOrder({ id }, {data});
+    const updateStatusOrder = await orderRepo.updateStatusOrder(
+      { id },
+      { data }
+    );
+
+    // Gửi thông báo push tới client
+    const userId = getDataOrder.customerId; // Thay thế bằng logic xác định userId của người đặt hàng
+    const statusMessage = getStatusMessage({ data }); // Hàm để lấy thông báo dựa trên trạng thái mới
+    console.log(statusMessage);
+    sendPushNotificationToClient(userId, statusMessage);
+
     return handleSuccess("Cap nhat thanh cong", updateStatusOrder);
   } catch (error) {
     return handleServerError(error?.message);
+  }
+};
+
+const sendPushNotificationToClient = (userId, message) => {
+  const payload = {
+    notification: {
+      title: "Thông báo đơn hàng",
+      body: message,
+    },
+    token: "", // Thay thế bằng logic để lấy device token từ database
+  };
+
+  messaging
+    .send(payload)
+    .then((response) => {
+      console.log("Successfully sent message:", response);
+    })
+    .catch((error) => {
+      console.error("Error sending message:", error);
+    });
+};
+
+const getStatusMessage = (status) => {
+  // Logic để lấy thông báo dựa trên trạng thái mới (status)
+  let array = [0, 1, 2, 3, 4];
+  switch (array.findIndex(status - 1)) {
+    case 0:
+      return "Đơn hàng đã bị hủy.";
+    case 1:
+      return "Đơn hàng đang chờ xác nhận.";
+    case 2:
+      return "Đơn hàng đã được xác nhận.";
+    case 3:
+      return "Đơn hàng đang được giao hàng.";
+    case 4:
+      return "Đơn hàng đã được giao hàng thành công.";
+    default:
+      return "Trạng thái đơn hàng đã thay đổi.";
   }
 };
 
@@ -101,6 +172,7 @@ const orderService = {
   getOrders,
   deleteOrder,
   updateStatusOrder,
+  getOrdersByCustomer
 };
 
 module.exports = orderService;

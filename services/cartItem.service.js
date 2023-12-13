@@ -10,9 +10,10 @@ const {
 } = require("../utils/handleReturn");
 
 const createCartItem = async (data, dataUser) => {
-  console.log(data);
+  // console.log(data);
   try {
     const { productSizeColorId, amount } = data;
+    console.log(typeof amount)
     if (!productSizeColorId || !amount) {
       return handleBadRequest(
         "Khong duoc de trong cartId, productSizeColorId hoac amount"
@@ -23,6 +24,24 @@ const createCartItem = async (data, dataUser) => {
     );
     if (!findProductSizeColor) {
       return handleNotFound("Khong tim thay productSizeColor");
+    }
+    const findProductInCart = await  cartItemRepo.getCartItem({productSizeColorId, cartId: dataUser?.cartId});
+    console.log(findProductInCart);
+    if(findProductInCart) {
+      // Nếu sản phẩm đã tồn tại trong cartItem, thực hiện cập nhật số lượng
+      const amountNew = findProductInCart?.dataValues?.amount + parseInt(amount);
+      console.log(amountNew);
+      const updatedCartItem = await cartItemRepo.updateCartItem({id: findProductInCart?.dataValues?.id},{
+        cartId: dataUser?.cartId,
+        productSizeColorId,
+        amount: amountNew // Cộng thêm số lượng mới vào số lượng hiện tại
+      });
+
+      if (!updatedCartItem) {
+        return handleBadRequest("Cập nhật cart item không thành công");
+      }
+
+      return handleSuccess("Cập nhật thành công", updatedCartItem);
     }
     const createCartItem = await cartItemRepo.createCartItem({
       cartId: dataUser?.cartId,
@@ -88,7 +107,7 @@ const deleteCartItem = async (data) => {
 
 const updateCartItem = async (data) => {
   try {
-    const { id, productSizeColorId } = data;
+    const { id, productSizeColorId, amount } = data;
     if (!id) {
       return handleBadRequest("Khong duoc de trong id");
     }
@@ -101,12 +120,13 @@ const updateCartItem = async (data) => {
     }
     const updateCartItem = await cartItemRepo.updateCartItem(
       { id },
-      { productSizeColorId }
+      { productSizeColorId, amount }
     );
     if (!updateCartItem) {
       return handleBadRequest("Cap nhat khong thanh cong");
     }
-    return handleSuccess("Thanh cong");
+    const findAfterUpdate = await cartItemRepo.getCartItem(({id}));
+    return handleSuccess("Thanh cong", findAfterUpdate);
   } catch (error) {
     return handleServerError(error?.message);
   }
