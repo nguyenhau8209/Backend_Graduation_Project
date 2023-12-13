@@ -154,43 +154,41 @@ const statistics = async (filter = {}) => {
     nest: true,
   });
 
-  // const top5Customers = await db.Customer.findAll({
-  //   attributes: [
-  //     ["id", "customerId"],
-  //     ["customerData.name", "customerName"],
-  //     [fn("COUNT", col("customerOrderData")), "totalOrder"],
-  //     [fn("SUM", col("paymentData.total")), "totalPrice"],
-  //   ],
-  //   include: [
-  //     { 
-  //       model: db.User,
-  //       as: "customerData",
-  //       attributes: []
-  //     }
-  //   ],
-  //   include: [
-  //     {
-  //       model: db.Order,
-  //       as: "customerOrderData",
-  //       attributes: [],
-
-  //       include: [
-  //         {
-  //           model: db.Payment,
-  //           as: "paymentData",
-  //           attributes: [],
-  //           group: ["totalPrice"],
-  //         },
-  //       ],
-  //       group: ["totalOrder"],
-  //     },
-  //   ],
-  //   group: ["customerId", "customerName"],
-  //   order: [[fn("SUM", col("paymentData.total")), "DESC"]],
-  //   limit: 5,
-  //   raw: true,
-  //   nest: true,
-  // });
+  const top5Customers = await db.Order.findAll({
+    attributes: [
+      [fn("COUNT", col("*")), "totalOrders"],
+      [fn("SUM", col("paymentData.total")), "totalRevenue"],
+    ],
+    include: [
+      {
+        model: db.Payment,
+        as: "paymentData",
+        attributes: [],
+      },
+      {
+        model: db.Customer,
+        as: "orderCustomerData",
+        attributes: [],
+        include: [
+          {
+            model: db.User,
+            as: "customerData",
+            attributes: [["name", "customerName"]],
+          },
+        ],
+      },
+    ],
+    where: {
+      status: {
+        [Op.notIn]: [0, 1], // Lọc theo trạng thái hợp lệ của đơn hàng
+      },
+    },
+    group: ["orderCustomerData.customerData.name"],
+    order: [[fn("SUM", col("paymentData.total")), "DESC"]],
+    limit: 5,
+    raw: true,
+    nest: true,
+  });
 
   const formattedResult = [
     {
@@ -228,10 +226,14 @@ const statistics = async (filter = {}) => {
       name: "Số lượng sản phẩm tồn kho",
       data: InventoryNumber,
     },
-    // {
-    //   name: "Top 5 khách hàng thân thiết",
-    //   data: top5Customers,
-    // },
+    {
+      name: "Top 5 khách hàng thân thiết",
+      data: top5Customers.map((entry) => ({
+        name: entry.orderCustomerData.customerData.customerName,
+        totalOrders: entry.totalOrders,
+        totalRevenue: entry.totalRevenue
+      })),
+    },
   ];
 
   return formattedResult;
