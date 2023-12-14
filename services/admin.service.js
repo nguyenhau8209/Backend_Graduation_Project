@@ -8,6 +8,7 @@ const {
 const adminRepo = require("../repositories/admin.repo");
 const {hashPw, comparePassWordMd5, generateJwtToken} = require("../utils/helper");
 const urlUploadImage = require("../utils/cloudinary");
+const db = require("../models");
 
 const signUp = async (data, avatarFile) => {
     try {
@@ -155,7 +156,7 @@ const updateAccount = async (idAccount, avatarAcount, data) => {
             return handleBadRequest("Khong duoc thay doi username")
         }
         let newPassword;
-        if(password){
+        if (password) {
             newPassword = await hashPw(password)
         }
         console.log(newPassword)
@@ -182,5 +183,26 @@ const updateAccount = async (idAccount, avatarAcount, data) => {
         return handleServerError(e?.message)
     }
 }
-const adminService = {signUp, signIn, getAccount, getAccounts, deleteAccount, updateAccount, createAccount};
+
+const restoreAdmin = async (data) => {
+    try {
+        const {id} = data;
+        if (!id) {
+            return handleBadRequest("Không được để trống id");
+        }
+        const findAdminAccount = await adminRepo.getAdmin({id});
+        if (!findAdminAccount) {
+            return handleNotFound("Không tìm thấy account");
+        }
+        await db.Admin.restore({
+            where: {
+                id
+            }
+        });
+        return handleSuccess("Khôi phục hoạt động thành công")
+    } catch (e) {
+        return handleServerError(e?.message)
+    }
+}
+const adminService = {signUp, signIn, getAccount, getAccounts, deleteAccount, updateAccount, createAccount, restoreAdmin};
 module.exports = adminService

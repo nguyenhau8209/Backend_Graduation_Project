@@ -4,12 +4,15 @@ const createAdmin = async ({username, password, role, fullname, avatar}) => {
     return await db.Admin.create({username, password, role, fullname, avatar});
 }
 const getAdmins = async () => {
-    return await db.Admin.findAll();
+    return await db.Admin.findAll({
+        paranoid: false
+    });
 }
 
 const getAdmin = async (filter) => {
     return await db.Admin.findOne({
         where: filter,
+        paranoid: false,
     });
 }
 

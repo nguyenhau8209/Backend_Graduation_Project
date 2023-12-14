@@ -78,5 +78,16 @@ const updateAccount = async (req, res) => {
         return res.status(STATUS_CODE.errorServer).json({message: e?.message})
     }
 }
-const adminController = {signUp, signIn, getAccount, getAccounts, deleteAccount, updateAccount, createAccount};
+const restoreAccount = async (req, res) => {
+    try {
+        const data = await adminService.restoreAdmin(req.params);
+        if (data?.error) {
+            return res.status(data?.status).json({message: data?.message});
+        }
+        return res.status(data?.status).json({data: data?.data, message: data?.message})
+    } catch (e) {
+        return res.status(STATUS_CODE.errorServer).json({message: e?.message})
+    }
+}
+const adminController = {signUp, signIn, getAccount, getAccounts, deleteAccount, updateAccount, createAccount, restoreAccount};
 module.exports = adminController;
