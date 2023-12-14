@@ -113,7 +113,7 @@ const deleteCategory = async (data) => {
         if (findProductInCategory) {
             return handleBadRequest("Không thể xóa danh mục có sản phẩm")
         }
-        console.log("findProductInCategory ", findProductInCategory)
+
         const deleteCategory = await categoryRepo.deleteCategory({id});
         if (!deleteCategory) {
             return handleBadRequest("Xoa khong thanh cong");

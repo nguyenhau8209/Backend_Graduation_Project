@@ -70,6 +70,7 @@ const getOrders = async (data) => {
   }
 };
 const getOrdersByCustomer = async (data) => {
+  console.log(data)
   try {
     console.log(data);
     const findOrders = await orderRepo.getOrders({
@@ -83,6 +84,8 @@ const getOrdersByCustomer = async (data) => {
     return handleServerError(error?.message);
   }
 };
+
+
 const deleteOrder = async (data) => {
   try {
     const { id } = data;

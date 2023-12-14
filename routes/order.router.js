@@ -11,6 +11,10 @@ orderRouter.get("/", middlewareAuth.checkLoginAdmin, (req, res, next) => {
     next()
 }, middlewareAuth.checkPermission, orderController.getOrders);
 orderRouter.get("/customer/", middlewareAuth.checkLogin, orderController.getOrdersCustomer)
+orderRouter.get("/admin/:customerId", middlewareAuth.checkLoginAdmin, (req, res, next) => {
+    req.permission = [0, 1];
+    next()
+}, middlewareAuth.checkPermission, orderController.getOrdersByCustomerId)
 orderRouter.get("/:id", middlewareAuth.checkLogin, orderController.getOrder);
 orderRouter.delete("/:id", middlewareAuth.checkLogin, orderController.deleteOrder);
 orderRouter.get("/:id", orderController.getOrder);
