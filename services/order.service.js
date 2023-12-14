@@ -199,6 +199,88 @@ const getStatusUpdateStatusPayment = async (id, status, paymentType) => {
   }
 };
 
+const { Op } = require('sequelize');
+const db = require("../models");
+
+const filterOrders = async (filterOptions) => {
+  try {
+    const {
+      customerId,
+      status,
+      searchKeyword,
+      page,
+      pageSize,
+    } = filterOptions;
+
+    const whereConditions = {};
+
+    if (customerId) {
+      whereConditions.customerId = customerId;
+    }
+
+    if (status !== undefined) {
+      whereConditions.status = status;
+    }
+
+    if (searchKeyword) {
+      // Tìm kiếm theo các trường khác trong Order nếu cần
+      // Ví dụ:
+      whereConditions[Op.or] = [
+        { id: { [Op.like]: `%${searchKeyword}%` } },
+        // Đặt các điều kiện tìm kiếm dựa trên các trường khác trong Order ở đây
+      ];
+    }
+
+    const currentPage = parseInt(page, 10) || 1;
+    const itemsPerPage = parseInt(pageSize, 10) || 10;
+    const offset = (currentPage - 1) * itemsPerPage;
+
+    const orders = await db.Order.findAndCountAll({
+      where: whereConditions,
+      limit: itemsPerPage,
+      offset: offset,
+      include: [
+        {
+          model: db.OrderItem,
+          as: 'orderItemData',
+          // Bạn có thể chọn các thuộc tính bạn muốn lấy từ bảng OrderItem
+        },
+        {
+          model: db.Payment,
+          as: 'paymentData',
+          // Chọn các thuộc tính bạn muốn lấy từ bảng Payment
+        },
+        {
+          model: db.Information,
+          as: 'addressData',
+          // Chọn các thuộc tính bạn muốn lấy từ bảng Information
+        },
+        {
+          model: db.Customer,
+          as: 'orderCustomerData',
+          // Chọn các thuộc tính bạn muốn lấy từ bảng Customer
+        },
+      ],
+    });
+    if(!orders){
+      return handleNotFound("Khong tim thay orders");
+    }
+    const totalOrders = orders.count;
+    const totalPages = Math.ceil(totalOrders / itemsPerPage);
+
+    return handleSuccess("Thanh cong",{
+      orders: orders.rows,
+      pagination: {
+        totalItems: totalOrders,
+        totalPages: totalPages,
+        currentPage: currentPage,
+      },
+    })
+  } catch (error) {
+    return handleServerError(error?.message)
+  }
+};
+
 const orderService = {
   createOrder,
   getOrder,
@@ -207,6 +289,7 @@ const orderService = {
   updateStatusOrder,
   getOrdersByCustomer,
   getOrdersByCustomerId,
+  filterOrders,
 };
 
 module.exports = orderService;

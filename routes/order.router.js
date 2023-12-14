@@ -5,6 +5,7 @@ const orderController = require("../controller/order.controller");
 const middlewareAuth = require("../middleware/checkAuth");
 module.exports = orderRouter;
 
+orderRouter.get("/filter", orderController.filterOrders);
 orderRouter.post("/", middlewareAuth.checkLogin, orderController.createOrder);
 orderRouter.get("/", middlewareAuth.checkLoginAdmin, (req, res, next) => {
     req.permission = [0, 1];
