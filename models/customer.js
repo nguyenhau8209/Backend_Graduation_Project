@@ -14,6 +14,11 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "id",
         as: "customerData"
       })
+      Customer.hasMany(models.Order, {
+        foreignKey: "customerId",
+        targetKey: "id",
+        as: "customerOrderData",
+      });
     }
   }
   Customer.init(
