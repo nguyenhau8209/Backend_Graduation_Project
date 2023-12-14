@@ -74,7 +74,7 @@ const getOrdersCustomer = async (req, res) => {
 
 const getOrdersByCustomerId = async (req, res) => {
   try {
-    const data = await orderService.getOrdersByCustomer(req.params);
+    const data = await orderService.getOrdersByCustomerId(req.params);
     if (data?.error) {
       return res
           .status(data?.status)

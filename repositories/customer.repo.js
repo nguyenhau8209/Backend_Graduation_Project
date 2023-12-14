@@ -22,6 +22,16 @@ const getCustomers = async () => {
 const getCustomer = async (filter) => {
   return await db.Customer.findOne({
     where: filter,
+    attributes: {
+      exclude: ["userId"]
+    },
+    include: [
+      {
+        model: db.User,
+        as: "customerData",
+        attributes: ["id", "userId", "name", "email", "picture"]
+      },
+    ],
   });
 };
 

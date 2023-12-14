@@ -85,6 +85,26 @@ const getOrdersByCustomer = async (data) => {
   }
 };
 
+const getOrdersByCustomerId = async (data) => {
+  console.log(data)
+  try {
+    console.log(data);
+    const findOrders = await orderRepo.getOrders({
+      customerId: data?.customerId,
+    });
+    const findCustomer = await customerRepo.getCustomer({id: data?.customerId})
+    if(!findCustomer) {
+      return handleNotFound("Không tìm thấy customer");
+    }
+    if (!findOrders) {
+      return handleNotFound("Khong tim thay orders");
+    }
+    return handleSuccess("Thanh cong", {listOrder: findOrders, customer: findCustomer});
+  } catch (error) {
+    return handleServerError(error?.message);
+  }
+};
+
 
 const deleteOrder = async (data) => {
   try {
@@ -186,6 +206,7 @@ const orderService = {
   deleteOrder,
   updateStatusOrder,
   getOrdersByCustomer,
+  getOrdersByCustomerId,
 };
 
 module.exports = orderService;
