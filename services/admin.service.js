@@ -204,5 +204,64 @@ const restoreAdmin = async (data) => {
         return handleServerError(e?.message)
     }
 }
-const adminService = {signUp, signIn, getAccount, getAccounts, deleteAccount, updateAccount, createAccount, restoreAdmin};
+
+const { Op } = require('sequelize');
+
+const filterAdmins = async (filterOptions) => {
+    try {
+        const {
+            username,
+            role,
+            searchKeyword,
+            page,
+            pageSize,
+        } = filterOptions;
+
+        const whereConditions = {};
+
+        if (username) {
+            whereConditions.username = username;
+        }
+
+        if (role !== undefined) {
+            whereConditions.role = role;
+        }
+
+        if (searchKeyword) {
+            whereConditions[Op.or] = [
+                { username: { [Op.like]: `%${searchKeyword}%` } },
+                { fullname: { [Op.like]: `%${searchKeyword}%` } },
+                // Thêm các trường khác bạn muốn tìm kiếm ở đây
+            ];
+        }
+
+        const currentPage = parseInt(page, 10) || 1;
+        const itemsPerPage = parseInt(pageSize, 10) || 10;
+        const offset = (currentPage - 1) * itemsPerPage;
+
+        const admins = await db.Admin.findAndCountAll({
+            where: whereConditions,
+            limit: itemsPerPage,
+            offset: offset,
+        });
+        if (!admins){
+            return handleNotFound("Không tìm thấy admins")
+        }
+        const totalAdmins = admins.count;
+        const totalPages = Math.ceil(totalAdmins / itemsPerPage);
+
+        return handleSuccess("Thành công", {
+            admins: admins.rows,
+            pagination: {
+                totalItems: totalAdmins,
+                totalPages: totalPages,
+                currentPage: currentPage,
+            },
+        })
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
+const adminService = {signUp, signIn, getAccount, getAccounts, deleteAccount, updateAccount, createAccount, restoreAdmin, filterAdmins};
 module.exports = adminService
