@@ -21,11 +21,49 @@ const findProducts = async (req, res) => {
             .json({status: STATUS_CODE.errorServer, message: error.message});
     }
 };
+const findProductsDeletedAt = async (req, res) => {
+    try {
+        const data = await productService.findProductsDeletedAt();
+        console.log(req.query)
+        if (data?.error) {
+            return res.status(data?.status).json({
+                status: data?.status,
+                data: data?.data,
+                message: data?.message,
+            });
+        }
+        return res
+            .status(data?.status)
+            .json({status: data?.status, data: data?.data, message: data?.message});
+    } catch (error) {
+        return res
+            .status(STATUS_CODE.errorServer)
+            .json({status: STATUS_CODE.errorServer, message: error.message});
+    }
+};
 
 const findOneProduct = async (req, res) => {
     try {
         console.log(req.params)
         const data = await productService.findOneProduct(req.params);
+        if (data?.error) {
+            return res
+                .status(data?.status)
+                .json({status: data?.status, message: data?.message});
+        }
+        return res
+            .status(data?.status)
+            .json({status: data?.status, data: data?.data, message: data?.message});
+    } catch (error) {
+        return res
+            .status(STATUS_CODE.errorServer)
+            .json({status: STATUS_CODE.errorServer, message: error.message});
+    }
+};
+const findProductDeletedAt = async (req, res) => {
+    try {
+        console.log(req.params)
+        const data = await productService.findProductDeletedAt(req.params);
         if (data?.error) {
             return res
                 .status(data?.status)
@@ -138,13 +176,33 @@ const getProductSale = async (req, res) => {
         }
         return res
             .status(data?.status)
-            .json({ data: data?.data, message: data?.message});
+            .json({data: data?.data, message: data?.message});
     } catch (error) {
         return res
             .status(STATUS_CODE.errorServer)
             .json({status: STATUS_CODE.errorServer, message: error.message});
     }
 };
+
+const restoreProduct = async (req, res) => {
+    try {
+
+        const data = await productService.restoreProduct(req.params);
+        if (data?.error) {
+            return res
+                .status(data?.status)
+                .json({status: data?.status, message: data?.message});
+        }
+        return res
+            .status(data?.status)
+            .json({status: data?.status, data: data?.data, message: data?.message});
+    } catch (error) {
+        return res
+            .status(STATUS_CODE.errorServer)
+            .json({status: STATUS_CODE.errorServer, message: error.message});
+    }
+};
+
 const productController = {
     findOneProduct,
     createProduct,
@@ -154,6 +212,9 @@ const productController = {
     filterProduct,
     saleProduct,
     getProductSale,
+    findProductsDeletedAt,
+    findProductDeletedAt,
+    restoreProduct
 };
 
 module.exports = productController;

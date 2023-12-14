@@ -45,6 +45,52 @@ const findProducts = async () => {
         ],
     });
 };
+const findProductsDeletedAt = async () => {
+    return await db.Product.findAll({
+        attributes: {
+            exclude: ["categoryId"],
+        },
+        include: [
+            {model: db.Category, as: "categoryData", attributes: ["id", "name"]},
+            {
+                model: db.ProductSizeColor,
+                as: "productData",
+                attributes: ["id", "amount", "price"],
+                include: [
+                    {
+                        model: db.Color,
+                        as: "colorData",
+                        attributes: ["id", "name"],
+                    },
+                    {model: db.Size, as: "sizeData", attributes: ["id", "name"]},
+
+                ],
+            },
+            {
+                model: db.Comment, as: "ProductCommentData",
+                include: [
+                    {
+                        model: db.Customer,
+                        as: "CustomerCommentData",
+                        attributes: {
+                            exclude: ["createdAt", "updatedAt", "deletedAt"],
+                        },
+                        include: [
+                            {
+                                model: db.User,
+                                as: "customerData",
+                                attributes: {
+                                    exclude: ["createdAt", "updatedAt", "deletedAt"],
+                                },
+                            },
+                        ],
+                    },
+                ]
+            },
+        ],
+        paranoid: false,
+    });
+};
 const findOneProduct = async (filter = {}) => {
     return await db.Product.findOne({
         where: filter,
@@ -71,6 +117,32 @@ const findOneProduct = async (filter = {}) => {
     });
 };
 
+const findProductDeletedAt = async (filter = {}) => {
+    return await db.Product.findOne({
+        where: filter,
+        attributes: {
+            exclude: ["categoryId"],
+        },
+        include: [
+            {model: db.Category, as: "categoryData", attributes: ["id", "name"]},
+            {
+                model: db.ProductSizeColor,
+                as: "productData",
+                attributes: ["id", "amount", "price"],
+                include: [
+                    {
+                        model: db.Color,
+                        as: "colorData",
+                        attributes: ["id", "name"],
+                    },
+                    {model: db.Size, as: "sizeData", attributes: ["id", "name"]},
+                ],
+            },
+            {model: db.Comment, as: "ProductCommentData"},
+        ],
+        paranoid: false,
+    });
+};
 const createProduct = async ({name, mainImage, categoryId, price, description}) => {
     return await db.Product.create({name, mainImage, categoryId, price, description});
 };
@@ -102,6 +174,8 @@ const productRepo = {
     findProducts,
     updateProduct,
     deleteProduct,
+    findProductsDeletedAt,
+    findProductDeletedAt
 };
 
 module.exports = productRepo;
