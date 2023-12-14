@@ -105,12 +105,22 @@ const updateStatusOrder = async (filter, data) => {
   );
 };
 
+const updateStatusPayment = async (filter, data) => {
+  return await db.Payment.update(
+    {
+      status: data,
+    },
+    { where: filter }
+  );
+};
+
 const orderRepo = {
   createOrder,
   getOrder,
   getOrders,
   deleteOrder,
   updateStatusOrder,
+  updateStatusPayment
 };
 
 module.exports = orderRepo;

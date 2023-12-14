@@ -1,5 +1,6 @@
 const customerRepo = require("../repositories/customer.repo");
 const orderRepo = require("../repositories/order.repo");
+const paymentRepo = require("../repositories/payment.repo");
 const {
   handleServerError,
   handleBadRequest,
@@ -58,7 +59,7 @@ const getOrder = async (data) => {
 
 const getOrders = async (data) => {
   try {
-    console.log(data)
+    console.log(data);
     const findOrders = await orderRepo.getOrders();
     if (!findOrders) {
       return handleNotFound("Khong tim thay orders");
@@ -70,8 +71,10 @@ const getOrders = async (data) => {
 };
 const getOrdersByCustomer = async (data) => {
   try {
-    console.log(data)
-    const findOrders = await orderRepo.getOrders({customerId: data?.customerId});
+    console.log(data);
+    const findOrders = await orderRepo.getOrders({
+      customerId: data?.customerId,
+    });
     if (!findOrders) {
       return handleNotFound("Khong tim thay orders");
     }
@@ -116,11 +119,16 @@ const updateStatusOrder = async (id, data) => {
       { data }
     );
 
-    // Gửi thông báo push tới client
-    const userId = getDataOrder.customerId; // Thay thế bằng logic xác định userId của người đặt hàng
-    const statusMessage = getStatusMessage({ data }); // Hàm để lấy thông báo dựa trên trạng thái mới
-    console.log(statusMessage);
-    sendPushNotificationToClient(userId, statusMessage);
+    const idPayment = getDataOrder.paymentData.dataValues.id;
+    const paymentType = getDataOrder.paymentData.dataValues.paymentType;
+    const paymentStatus = getDataOrder.paymentData.dataValues.status;
+
+    if (paymentType == 1) {
+      if (data == 4) {
+        await orderRepo.updateStatusPayment({ id }, { data: 2 });
+      }
+    }
+    getStatusUpdateStatusPayment({ id }, { data }, paymentType);
 
     return handleSuccess("Cap nhat thanh cong", updateStatusOrder);
   } catch (error) {
@@ -128,39 +136,41 @@ const updateStatusOrder = async (id, data) => {
   }
 };
 
-const sendPushNotificationToClient = (userId, message) => {
-  const payload = {
-    notification: {
-      title: "Thông báo đơn hàng",
-      body: message,
-    },
-    token: "", // Thay thế bằng logic để lấy device token từ database
-  };
-
-  messaging
-    .send(payload)
-    .then((response) => {
-      console.log("Successfully sent message:", response);
-    })
-    .catch((error) => {
-      console.error("Error sending message:", error);
-    });
-};
-
-const getStatusMessage = (status) => {
+const getStatusUpdateStatusPayment = async (id, status, paymentType) => {
   // Logic để lấy thông báo dựa trên trạng thái mới (status)
   let array = [0, 1, 2, 3, 4];
-  switch (array.findIndex(status - 1)) {
+
+  switch (array.at(status.data)) {
     case 0:
-      return "Đơn hàng đã bị hủy.";
+      if (paymentType == 1) {
+        return await orderRepo.updateStatusPayment(id, 0);
+      } else if (paymentType == 2) {
+        return await orderRepo.updateStatusPayment(id, -1);
+      }
     case 1:
-      return "Đơn hàng đang chờ xác nhận.";
+      if (paymentType == 1) {
+        return await orderRepo.updateStatusPayment(id, 1);
+      } else if (paymentType == 2) {
+        return await orderRepo.updateStatusPayment(id, 2);
+      }
     case 2:
-      return "Đơn hàng đã được xác nhận.";
+      if (paymentType == 1) {
+        return await orderRepo.updateStatusPayment(id, 1);
+      } else if (paymentType == 2) {
+        return await orderRepo.updateStatusPayment(id, 2);
+      }
     case 3:
-      return "Đơn hàng đang được giao hàng.";
+      if (paymentType == 1) {
+        return await orderRepo.updateStatusPayment(id, 1);
+      } else if (paymentType == 2) {
+        return await orderRepo.updateStatusPayment(id, 2);
+      }
     case 4:
-      return "Đơn hàng đã được giao hàng thành công.";
+      if (paymentType == 1) {
+        return await orderRepo.updateStatusPayment(id, 2);
+      } else if (paymentType == 2) {
+        return await orderRepo.updateStatusPayment(id, 2);
+      }
     default:
       return "Trạng thái đơn hàng đã thay đổi.";
   }
@@ -172,7 +182,7 @@ const orderService = {
   getOrders,
   deleteOrder,
   updateStatusOrder,
-  getOrdersByCustomer
+  getOrdersByCustomer,
 };
 
 module.exports = orderService;
