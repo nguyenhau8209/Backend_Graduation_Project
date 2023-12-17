@@ -145,6 +145,7 @@ const statistics = async (filter = {}) => {
     attributes: [
       ["id", "id"],
       ["name", "name"],
+      ["mainImage", "mainImage"],
       [fn("SUM", col("productData.amount")), "productAmount"],
     ],
     include: [
@@ -154,7 +155,7 @@ const statistics = async (filter = {}) => {
         attributes: [],
       },
     ],
-    group: ["id", "name"],
+    group: ["id", "name", "mainImage"],
     raw: true,
     nest: true,
   });
