@@ -9,6 +9,11 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      productCode: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+      },
       name: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -22,6 +27,10 @@ module.exports = {
         allowNull: false,
       },
       price: {
+        type: Sequelize.DOUBLE,
+        allowNull: false,
+      },
+      importPrice: {
         type: Sequelize.DOUBLE,
         allowNull: false,
       },
