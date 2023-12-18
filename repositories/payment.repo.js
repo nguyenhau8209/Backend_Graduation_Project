@@ -199,6 +199,34 @@ const statistics = async (filter = {}) => {
     nest: true,
   });
 
+  const totalCapital = await db.Product.findAll({
+    attributes: [
+      ["id", "id"],
+      ["importPrice", "importPrice"],
+      [fn("SUM", col("productData.amount")), "productAmount"],
+    ],
+    include: [
+      {
+        model: db.ProductSizeColor,
+        as: "productData",
+        attributes: [],
+      },
+    ],
+    group: ["id"],
+    raw: true,
+    nest: true,
+  });
+  let sumCappital = 0;
+  let cappitalValue = 0;
+  await totalCapital.map((value, i) => {
+    sumCappital = value.importPrice * value.productAmount;
+
+    return (cappitalValue += sumCappital);
+  });
+
+  let totalProfit =
+    totalRevenue.length > 0 ? totalRevenue[0].totalPrice - cappitalValue : 0;
+
   const formattedResult = [
     {
       name: "Tổng doanh thu",
@@ -242,6 +270,14 @@ const statistics = async (filter = {}) => {
         totalOrders: entry.totalOrders,
         totalRevenue: entry.totalRevenue,
       })),
+    },
+    {
+      name: "Tổng số vốn",
+      data: cappitalValue,
+    },
+    {
+      name: "Tổng lợi nhuận",
+      data: totalProfit,
     },
   ];
 
