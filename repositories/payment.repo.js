@@ -179,7 +179,10 @@ const statistics = async (filter = {}) => {
           {
             model: db.User,
             as: "customerData",
-            attributes: [["name", "customerName"]],
+            attributes: [
+              ["name", "customerName"],
+              ["picture", "avatar"],
+            ],
           },
         ],
       },
@@ -267,6 +270,7 @@ const statistics = async (filter = {}) => {
       name: "Top 5 khách hàng thân thiết",
       data: top5Customers.map((entry) => ({
         name: entry.orderCustomerData.customerData.customerName,
+        avatar: entry.orderCustomerData.customerData.avatar,
         totalOrders: entry.totalOrders,
         totalRevenue: entry.totalRevenue,
       })),
