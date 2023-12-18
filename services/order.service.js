@@ -1,6 +1,7 @@
 const customerRepo = require("../repositories/customer.repo");
 const orderRepo = require("../repositories/order.repo");
 const paymentRepo = require("../repositories/payment.repo");
+const deviceTokenRepo = require("../repositories/deviceToken.repo");
 const {
   handleServerError,
   handleBadRequest,
@@ -20,6 +21,7 @@ admin.initializeApp({
 });
 
 const messaging = admin.messaging();
+let strNotification = "";
 
 const createOrder = async (data) => {
   try {
@@ -70,7 +72,7 @@ const getOrders = async (data) => {
   }
 };
 const getOrdersByCustomer = async (data) => {
-  console.log(data)
+  console.log(data);
   try {
     console.log(data);
     const findOrders = await orderRepo.getOrders({
@@ -86,25 +88,29 @@ const getOrdersByCustomer = async (data) => {
 };
 
 const getOrdersByCustomerId = async (data) => {
-  console.log(data)
+  console.log(data);
   try {
     console.log(data);
     const findOrders = await orderRepo.getOrders({
       customerId: data?.customerId,
     });
-    const findCustomer = await customerRepo.getCustomer({id: data?.customerId})
-    if(!findCustomer) {
+    const findCustomer = await customerRepo.getCustomer({
+      id: data?.customerId,
+    });
+    if (!findCustomer) {
       return handleNotFound("Không tìm thấy customer");
     }
     if (!findOrders) {
       return handleNotFound("Khong tim thay orders");
     }
-    return handleSuccess("Thanh cong", {listOrder: findOrders, customer: findCustomer});
+    return handleSuccess("Thanh cong", {
+      listOrder: findOrders,
+      customer: findCustomer,
+    });
   } catch (error) {
     return handleServerError(error?.message);
   }
 };
-
 
 const deleteOrder = async (data) => {
   try {
@@ -142,16 +148,34 @@ const updateStatusOrder = async (id, data) => {
       { data }
     );
 
-    const idPayment = getDataOrder.paymentData.dataValues.id;
     const paymentType = getDataOrder.paymentData.dataValues.paymentType;
-    const paymentStatus = getDataOrder.paymentData.dataValues.status;
 
-    if (paymentType == 1) {
-      if (data == 4) {
-        await orderRepo.updateStatusPayment({ id }, { data: 2 });
-      }
-    }
     getStatusUpdateStatusPayment({ id }, { data }, paymentType);
+
+    const customerId = await getDataOrder.dataValues.customerId;
+
+    console.log(customerId);
+
+    const deviceToken = await deviceTokenRepo.getDeviceToken({ customerId });
+
+    console.log(deviceToken.dataValues.deviceToken);
+    const message = {
+      notification: {
+        title: `Cập nhật trạng thái đơn hàng #${id}`,
+        body: `Trạng thái: ${strNotification}`,
+      },
+      android: {
+        notification: {
+          imageUrl:
+            "https://firebasestorage.googleapis.com/v0/b/md14datn-1ef2d.appspot.com/o/logo_no_text.jpg?alt=media&token=d7428e68-3a7c-4991-b4d4-8826faae6a07",
+        },
+      },
+      token: deviceToken.dataValues.deviceToken,
+    };
+
+    // Send the message to the device
+    const response = await messaging.send(message);
+    console.log("Successfully sent message:", response);
 
     return handleSuccess("Cap nhat thanh cong", updateStatusOrder);
   } catch (error) {
@@ -162,55 +186,49 @@ const updateStatusOrder = async (id, data) => {
 const getStatusUpdateStatusPayment = async (id, status, paymentType) => {
   // Logic để lấy thông báo dựa trên trạng thái mới (status)
   let array = [0, 1, 2, 3, 4];
-
   switch (array.at(status.data)) {
     case 0:
+      strNotification = "Đơn hàng đã hủy"
       if (paymentType == 1) {
         return await orderRepo.updateStatusPayment(id, 0);
       } else if (paymentType == 2) {
         return await orderRepo.updateStatusPayment(id, -1);
       }
     case 1:
+      strNotification = "Chờ xác nhận đơn hàng"
       if (paymentType == 1) {
         return await orderRepo.updateStatusPayment(id, 1);
       } else if (paymentType == 2) {
         return await orderRepo.updateStatusPayment(id, 2);
       }
     case 2:
+      strNotification = "Đơn hàng đã được xác nhận"
       if (paymentType == 1) {
         return await orderRepo.updateStatusPayment(id, 1);
       } else if (paymentType == 2) {
         return await orderRepo.updateStatusPayment(id, 2);
       }
     case 3:
+      strNotification = "Đơn hàng đang được giao"
       if (paymentType == 1) {
         return await orderRepo.updateStatusPayment(id, 1);
       } else if (paymentType == 2) {
         return await orderRepo.updateStatusPayment(id, 2);
       }
     case 4:
-      if (paymentType == 1) {
-        return await orderRepo.updateStatusPayment(id, 2);
-      } else if (paymentType == 2) {
-        return await orderRepo.updateStatusPayment(id, 2);
-      }
+      strNotification = "Đã giao hàng thành công"
+      return await orderRepo.updateStatusPayment(id, 2);
     default:
       return "Trạng thái đơn hàng đã thay đổi.";
   }
 };
 
-const { Op } = require('sequelize');
+const { Op } = require("sequelize");
 const db = require("../models");
 
 const filterOrders = async (filterOptions) => {
   try {
-    const {
-      customerId,
-      status,
-      searchKeyword,
-      page,
-      pageSize,
-    } = filterOptions;
+    const { customerId, status, searchKeyword, page, pageSize } = filterOptions;
 
     const whereConditions = {};
 
@@ -242,42 +260,42 @@ const filterOrders = async (filterOptions) => {
       include: [
         {
           model: db.OrderItem,
-          as: 'orderItemData',
+          as: "orderItemData",
           // Bạn có thể chọn các thuộc tính bạn muốn lấy từ bảng OrderItem
         },
         {
           model: db.Payment,
-          as: 'paymentData',
+          as: "paymentData",
           // Chọn các thuộc tính bạn muốn lấy từ bảng Payment
         },
         {
           model: db.Information,
-          as: 'addressData',
+          as: "addressData",
           // Chọn các thuộc tính bạn muốn lấy từ bảng Information
         },
         {
           model: db.Customer,
-          as: 'orderCustomerData',
+          as: "orderCustomerData",
           // Chọn các thuộc tính bạn muốn lấy từ bảng Customer
         },
       ],
     });
-    if(!orders){
+    if (!orders) {
       return handleNotFound("Khong tim thay orders");
     }
     const totalOrders = orders.count;
     const totalPages = Math.ceil(totalOrders / itemsPerPage);
 
-    return handleSuccess("Thanh cong",{
+    return handleSuccess("Thanh cong", {
       orders: orders.rows,
       pagination: {
         totalItems: totalOrders,
         totalPages: totalPages,
         currentPage: currentPage,
       },
-    })
+    });
   } catch (error) {
-    return handleServerError(error?.message)
+    return handleServerError(error?.message);
   }
 };
 
