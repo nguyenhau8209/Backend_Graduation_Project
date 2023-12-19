@@ -143,8 +143,8 @@ const findProductDeletedAt = async (filter = {}) => {
         paranoid: false,
     });
 };
-const createProduct = async ({name, mainImage, categoryId, price, description}) => {
-    return await db.Product.create({name, mainImage, categoryId, price, description});
+const createProduct = async ({name, mainImage, categoryId, price, description, productCode, importPrice}) => {
+    return await db.Product.create({name, mainImage, categoryId, price, description, productCode, importPrice});
 };
 
 const updateProduct = async (filter, data) => {
@@ -156,6 +156,7 @@ const updateProduct = async (filter, data) => {
             categoryId: data?.data?.categoryId,
             price: data?.data?.price,
             description: data?.data?.description,
+            importPrice: data?.data?.importPrice,
         },
         {
             where: filter,

@@ -156,8 +156,8 @@ const filterProduct = async (req, res) => {
 const saleProduct = async (req, res) => {
     try {
         const {id} = req.params;
-        const {salePrice} = req.body;
-        const data = await productService.productSale({id, salePrice});
+        const {salePrice, saleTime} = req.body;
+        const data = await productService.productSale({id, salePrice, saleTime});
         if (data?.error) {
             return res.status(data?.status).json({message: data?.message});
         }

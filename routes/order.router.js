@@ -4,7 +4,7 @@ const orderRouter = express.Router();
 const orderController = require("../controller/order.controller");
 const middlewareAuth = require("../middleware/checkAuth");
 module.exports = orderRouter;
-
+orderRouter.get("/vnpay_return", orderController.vnPayReturn);
 orderRouter.get("/filter", orderController.filterOrders);
 orderRouter.post("/", middlewareAuth.checkLogin, orderController.createOrder);
 orderRouter.get("/", middlewareAuth.checkLoginAdmin, (req, res, next) => {
@@ -28,3 +28,4 @@ orderRouter.put("/status-order/:id", middlewareAuth.checkLoginAdmin, (req, res, 
     req.permission = [0, 1];
     next()
 }, orderController.updateStatusOrder);
+

@@ -124,9 +124,9 @@ const findProductDeletedAt = async (data) => {
     }
 };
 const createProduct = async (data) => {
-    const {name, mainImage, categoryId, price, description} = data;
+    const {name, mainImage, categoryId, price, description, productCode, importPrice} = data;
     //   console.log(name, mainImage, categoryId);
-    if (!name || !mainImage || !categoryId || !price || !description) {
+    if (!name || !mainImage || !categoryId || !price || !description || !productCode || !importPrice) {
         return {
             error: true,
             status: STATUS_CODE.badRequest,
@@ -154,6 +154,8 @@ const createProduct = async (data) => {
         categoryId,
         price,
         description,
+        productCode,
+        importPrice
     });
     return {
         error: false,
@@ -335,13 +337,28 @@ const filterProduct = async (data) => {
 
 const productSale = async (data) => {
     try {
-        const {id, salePrice} = data;
+        const { id, salePrice, saleTime } = data;
+        console.log("saleTime ", saleTime);
         if (!id || !salePrice) {
             return handleBadRequest("Không được để trống trường dữ liệu");
         }
+
+        let timeInMilliseconds = 0;
+
+        // Chuyển đổi thời gian vào mili giây tùy theo đơn vị nhập vào
+        if (saleTime.includes('giờ')) {
+            const hours = parseFloat(saleTime);
+            timeInMilliseconds = hours * 60 * 60 * 1000; // số giờ * số phút * số giây * số mili giây
+        } else if (saleTime.includes('phút')) {
+            const minutes = parseFloat(saleTime);
+            timeInMilliseconds = minutes * 60 * 1000; // số phút * số giây * số mili giây
+        } else if (saleTime.includes('ngày')) {
+            const days = parseFloat(saleTime);
+            timeInMilliseconds = days * 24 * 60 * 60 * 1000; // số ngày * số giờ * số phút * số giây * số mili giây
+        }
+
         const saleStart = new Date();
-        const saleEnd = new Date(); // Thời gian kết thúc sale, ví dụ: sale trong 7 ngày
-        saleEnd.setDate(saleEnd.getDate() + 7);
+        const saleEnd = new Date(saleStart.getTime() + timeInMilliseconds);
 
         const product = await db.Product.findByPk(id);
         if (product) {
@@ -366,6 +383,7 @@ const productSale = async (data) => {
     }
 };
 
+
 // Kiểm tra và cập nhật giá sản phẩm sau khi thời gian sale kết thúc
 const cron = require("node-cron");
 const sequelize = require("sequelize");
@@ -375,7 +393,7 @@ cron.schedule("0 0 * * *", async () => {
         where: {saleEnd: {[Op.lt]: new Date()}},
     });
     products.forEach(async (product) => {
-        await Product.update(
+        await db.Product.update(
             {
                 price: product.price, // Quay trở về giá cũ
                 salePrice: null,
