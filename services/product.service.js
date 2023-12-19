@@ -18,14 +18,14 @@ const findProducts = async () => {
             return {
                 error: true,
                 status: STATUS_CODE.notFounded,
-                message: "Khong tim thay product",
+                message: "Không tìm thấy sản phẩm",
             };
         }
         return {
             error: false,
             status: STATUS_CODE.success,
             data: findProducts,
-            message: "Thanh cong",
+            message: "Thành công",
         };
     } catch (error) {
         return {
@@ -35,14 +35,37 @@ const findProducts = async () => {
         };
     }
 };
-
+const findProductsDeletedAt = async () => {
+    try {
+        const findProducts = await productRepo.findProductsDeletedAt();
+        if (!findProducts) {
+            return {
+                error: true,
+                status: STATUS_CODE.notFounded,
+                message: "Không tìm thấy sản phẩm",
+            };
+        }
+        return {
+            error: false,
+            status: STATUS_CODE.success,
+            data: findProducts,
+            message: "Thành công",
+        };
+    } catch (error) {
+        return {
+            error: true,
+            status: STATUS_CODE.errorServer,
+            message: error.message,
+        };
+    }
+};
 const findOneProduct = async (data) => {
     const {id} = data;
     if (!id) {
         return {
             error: true,
             status: STATUS_CODE.badRequest,
-            message: "name thi khong duoc de trong",
+            message: "name thì không được để trống",
         };
     }
     try {
@@ -51,14 +74,14 @@ const findOneProduct = async (data) => {
             return {
                 error: true,
                 status: STATUS_CODE.notFounded,
-                message: "Khong tim thay Product",
+                message: "Không tìm thấy sản phẩm",
             };
         }
         return {
             error: false,
             status: STATUS_CODE.success,
             data: findProduct.dataValues,
-            message: "Thanh cong",
+            message: "Thành công",
         };
     } catch (error) {
         return {
@@ -68,15 +91,46 @@ const findOneProduct = async (data) => {
         };
     }
 };
-
-const createProduct = async (data) => {
-    const {name, mainImage, categoryId, price, description} = data;
-    //   console.log(name, mainImage, categoryId);
-    if (!name || !mainImage || !categoryId || !price || !description) {
+const findProductDeletedAt = async (data) => {
+    const {id} = data;
+    if (!id) {
         return {
             error: true,
             status: STATUS_CODE.badRequest,
-            message: "Vui long nhap du du lieu",
+            message: "name thì không được để trống",
+        };
+    }
+    try {
+        const findProduct = await productRepo.findProductDeletedAt({id});
+        if (!findProduct) {
+            return {
+                error: true,
+                status: STATUS_CODE.notFounded,
+                message: "Không tìm thấy sản phẩm",
+            };
+        }
+        return {
+            error: false,
+            status: STATUS_CODE.success,
+            data: findProduct.dataValues,
+            message: "Thành công",
+        };
+    } catch (error) {
+        return {
+            error: true,
+            status: STATUS_CODE.errorServer,
+            message: error.message,
+        };
+    }
+};
+const createProduct = async (data) => {
+    const {name, mainImage, categoryId, price, description, productCode, importPrice} = data;
+    //   console.log(name, mainImage, categoryId);
+    if (!name || !mainImage || !categoryId || !price || !description || !productCode || !importPrice) {
+        return {
+            error: true,
+            status: STATUS_CODE.badRequest,
+            message: "Vui lòng nhập dữ liệu",
         };
     }
 
@@ -86,7 +140,7 @@ const createProduct = async (data) => {
         return {
             error: true,
             status: STATUS_CODE.badRequest,
-            message: "Product da ton tai",
+            message: "Sản phẩm đã tồn tại",
         };
     }
     const cloudFile = await urlUploadImage(
@@ -100,24 +154,26 @@ const createProduct = async (data) => {
         categoryId,
         price,
         description,
+        productCode,
+        importPrice
     });
     return {
         error: false,
         status: STATUS_CODE.created,
         data: newProduct,
-        message: "Tao Product thanh cong",
+        message: "Tạo sản phẩm thành công",
     };
 };
 
 const updateProduct = async (id, data, mainImage) => {
     console.log(mainImage);
     if (!id) {
-        return handleBadRequest("Khong duoc de trong");
+        return handleBadRequest("Không được để trống");
     }
     try {
         const findOneProduct = await productRepo.findOneProduct({id});
         if (!findOneProduct) {
-            return handleNotFound("Khong tim thay category");
+            return handleNotFound("Không tìm thấy danh mục");
         }
         if (mainImage) {
             console.log(mainImage);
@@ -131,17 +187,17 @@ const updateProduct = async (id, data, mainImage) => {
                 {data, mainImage: cloudFile}
             );
             if (!updateProduct) {
-                return handleBadRequest("Cap nhat that bai");
+                return handleBadRequest("Cập nhật thất bại");
             }
             const findAfterUpdate = await productRepo.findOneProduct({id});
-            return handleSuccess("Cap nhat thanh cong", findAfterUpdate);
+            return handleSuccess("Cập nhật thành công", findAfterUpdate);
         }
         const updateProduct = await productRepo.updateProduct({id}, {data});
         if (!updateProduct) {
-            return handleBadRequest("Cap nhat that bai");
+            return handleBadRequest("Cập nhật thất bại");
         }
         const findAfterUpdate = await productRepo.findOneProduct({id});
-        return handleSuccess("Cap nhat thanh cong", findAfterUpdate);
+        return handleSuccess("Cập nhật thành công", findAfterUpdate);
     } catch (error) {
         return handleServerError(error.message);
     }
@@ -151,17 +207,17 @@ const deleteProduct = async (data) => {
     try {
         const {id} = data;
         if (!id) {
-            return handleBadRequest("Khong duoc de trong");
+            return handleBadRequest("Không được để trống id");
         }
         const findProduct = await productRepo.findOneProduct({id});
         if (!findProduct) {
-            return handleNotFound("Khong tim thay san pham");
+            return handleNotFound("Không tìm thấy sản phẩm");
         }
         const deleteProduct = await productRepo.deleteProduct({id});
         if (!deleteProduct) {
-            return handleBadRequest("Xoa khong thanh cong");
+            return handleBadRequest("Xóa không thành công");
         }
-        return handleSuccess("Xoa thanh cong");
+        return handleSuccess("Xóa thành công");
     } catch (error) {
         return handleServerError(error.message);
     }
@@ -179,7 +235,6 @@ const filterProduct = async (data) => {
             maxPrice,
             isNew,
         } = data;
-
         const whereConditions = {};
 
         if (categoryId) {
@@ -195,8 +250,12 @@ const filterProduct = async (data) => {
 
         if (keyword) {
             whereConditions[Op.or] = [
-                {name: {[Op.like]: `%${keyword}%`}},
-                {description: {[Op.like]: `%${keyword}%`}},
+                sequelize.where(sequelize.fn('LOWER', sequelize.col('name')), {
+                    [Op.like]: `%${keyword.toLowerCase()}%`
+                }),
+                sequelize.where(sequelize.fn('LOWER', sequelize.col('description')), {
+                    [Op.like]: `%${keyword.toLowerCase()}%`
+                }),
                 // Thêm các trường khác bạn muốn tìm kiếm ở đây
             ];
         }
@@ -278,13 +337,28 @@ const filterProduct = async (data) => {
 
 const productSale = async (data) => {
     try {
-        const {id, salePrice} = data;
+        const { id, salePrice, saleTime } = data;
+        console.log("saleTime ", saleTime);
         if (!id || !salePrice) {
-            return handleBadRequest("Khong duoc de trong truong du lieu");
+            return handleBadRequest("Không được để trống trường dữ liệu");
         }
+
+        let timeInMilliseconds = 0;
+
+        // Chuyển đổi thời gian vào mili giây tùy theo đơn vị nhập vào
+        if (saleTime.includes('giờ')) {
+            const hours = parseFloat(saleTime);
+            timeInMilliseconds = hours * 60 * 60 * 1000; // số giờ * số phút * số giây * số mili giây
+        } else if (saleTime.includes('phút')) {
+            const minutes = parseFloat(saleTime);
+            timeInMilliseconds = minutes * 60 * 1000; // số phút * số giây * số mili giây
+        } else if (saleTime.includes('ngày')) {
+            const days = parseFloat(saleTime);
+            timeInMilliseconds = days * 24 * 60 * 60 * 1000; // số ngày * số giờ * số phút * số giây * số mili giây
+        }
+
         const saleStart = new Date();
-        const saleEnd = new Date(); // Thời gian kết thúc sale, ví dụ: sale trong 7 ngày
-        saleEnd.setDate(saleEnd.getDate() + 7);
+        const saleEnd = new Date(saleStart.getTime() + timeInMilliseconds);
 
         const product = await db.Product.findByPk(id);
         if (product) {
@@ -301,23 +375,25 @@ const productSale = async (data) => {
                 }
             );
 
-            return handleSuccess("Thanh cong");
+            return handleSuccess("Thành công");
         }
-        return handleBadRequest("Tao giam gia that bai");
+        return handleBadRequest("Tạo giảm giá thất bại");
     } catch (e) {
         return handleServerError(e?.message);
     }
 };
 
+
 // Kiểm tra và cập nhật giá sản phẩm sau khi thời gian sale kết thúc
 const cron = require("node-cron");
+const sequelize = require("sequelize");
 cron.schedule("0 0 * * *", async () => {
     // Chạy vào mỗi đêm
     const products = await db.Product.findAll({
         where: {saleEnd: {[Op.lt]: new Date()}},
     });
     products.forEach(async (product) => {
-        await Product.update(
+        await db.Product.update(
             {
                 price: product.price, // Quay trở về giá cũ
                 salePrice: null,
@@ -366,13 +442,32 @@ const getProductSale = async () => {
             ]
         });
         if (productsOnSale.length === 0) {
-            return handleNotFound("Khong tim thay san pham nao dang sale");
+            return handleNotFound("Không tìm thấy sản phẩm nào đang giảm giá");
         }
-        return handleSuccess("Thanh cong", productsOnSale);
+        return handleSuccess("Thành công", productsOnSale);
     } catch (e) {
         return handleServerError(e?.message);
     }
 };
+
+const restoreProduct = async (data) => {
+    try {
+        const {id} = data;
+        if (!id) {
+            return handleBadRequest("Không được để trống id");
+        }
+        const findProduct = await productRepo.findProductDeletedAt({id});
+        if (!findProduct) {
+            return handleNotFound("Không tìm thấy sản phẩm");
+        }
+        await db.Product.restore({
+            where: {id}
+        })
+        return handleSuccess("Khôi phục sản phẩm thành công")
+    } catch (e) {
+        return handleServerError(e?.message)
+    }
+}
 const productService = {
     findProducts,
     findOneProduct,
@@ -382,6 +477,9 @@ const productService = {
     filterProduct,
     productSale,
     getProductSale,
+    findProductsDeletedAt,
+    findProductDeletedAt,
+    restoreProduct
 };
 
 module.exports = productService;

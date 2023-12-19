@@ -6,6 +6,12 @@ module.exports = adminRouter;
 // adminRouter.put("/:id", middlewareAuth.checkLogin , adminController.updateUser);
 adminRouter.post("/signup", adminController.signUp);
 adminRouter.post("/signin", adminController.signIn);
+adminRouter.get("/filter", adminController.filterAccount)
+adminRouter.put("/restore/:id", middlewareAuth.checkLoginAdmin, (req, res, next) => {
+    req.permission = [0, 1];
+    next()
+}, middlewareAuth.checkPermission, adminController.restoreAccount);
+
 adminRouter.post("/create/account", middlewareAuth.checkLoginAdmin, (req, res, next) => {
     req.permission = [1];
     next()

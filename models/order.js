@@ -24,6 +24,11 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "id",
         as: "addressData",
       });
+      Order.belongsTo(models.Customer, {
+        foreignKey: "customerId",
+        targetKey: "id",
+        as: "orderCustomerData",
+      });
     }
   }
   Order.init(

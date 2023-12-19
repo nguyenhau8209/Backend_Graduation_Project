@@ -117,12 +117,118 @@ const statistics = async (filter = {}) => {
         ],
       },
     ],
-    group: ["productSizeColorId"],
+    group: [
+      "productSizeColorId",
+      "orderProductSizeColorData.productData.id",
+      "orderProductSizeColorData.productData.name",
+      "orderProductSizeColorData.productData.mainImage",
+      "orderProductSizeColorData.productData.price",
+    ],
     order: [[fn("SUM", col("OrderItem.amount")), "DESC"]],
     limit: 5,
     raw: true,
     nest: true,
   });
+
+  const totalRevenue = await db.Payment.findAll({
+    attributes: [[fn("SUM", col("total")), "totalPrice"]],
+    raw: true,
+    nest: true,
+  });
+  const totalCustomer = await db.Customer.findAll({
+    attributes: [[fn("COUNT", col("*")), "totalCustomer"]],
+    raw: true,
+    nest: true,
+  });
+
+  const InventoryNumber = await db.Product.findAll({
+    attributes: [
+      ["id", "id"],
+      ["name", "name"],
+      ["mainImage", "mainImage"],
+      [fn("SUM", col("productData.amount")), "productAmount"],
+    ],
+    include: [
+      {
+        model: db.ProductSizeColor,
+        as: "productData",
+        attributes: [],
+      },
+    ],
+    group: ["id", "name", "mainImage"],
+    raw: true,
+    nest: true,
+  });
+
+  const top5Customers = await db.Order.findAll({
+    attributes: [
+      [fn("COUNT", col("*")), "totalOrders"],
+      [fn("SUM", col("paymentData.total")), "totalRevenue"],
+    ],
+    include: [
+      {
+        model: db.Payment,
+        as: "paymentData",
+        attributes: [],
+      },
+      {
+        model: db.Customer,
+        as: "orderCustomerData",
+        attributes: [],
+        include: [
+          {
+            model: db.User,
+            as: "customerData",
+            attributes: [
+              ["name", "customerName"],
+              ["picture", "avatar"],
+            ],
+          },
+        ],
+      },
+    ],
+    where: {
+      status: {
+        [Op.notIn]: [0, 1], // Lọc theo trạng thái hợp lệ của đơn hàng
+      },
+    },
+    group: [
+      "orderCustomerData.customerData.id",
+      "orderCustomerData.customerData.name",
+    ],
+    order: [[fn("SUM", col("paymentData.total")), "DESC"]],
+    limit: 5,
+    raw: true,
+    nest: true,
+  });
+
+  const totalCapital = await db.Product.findAll({
+    attributes: [
+      ["id", "id"],
+      ["importPrice", "importPrice"],
+      [fn("SUM", col("productData.amount")), "productAmount"],
+    ],
+    include: [
+      {
+        model: db.ProductSizeColor,
+        as: "productData",
+        attributes: [],
+      },
+    ],
+    group: ["id"],
+    raw: true,
+    nest: true,
+  });
+  let sumCappital = 0;
+  let cappitalValue = 0;
+  await totalCapital.map((value, i) => {
+    sumCappital = value.importPrice * value.productAmount;
+
+    return (cappitalValue += sumCappital);
+  });
+
+  let totalProfit =
+    totalRevenue.length > 0 ? totalRevenue[0].totalPrice - cappitalValue : 0;
 
   const formattedResult = [
     {
@@ -147,6 +253,35 @@ const statistics = async (filter = {}) => {
         price: entry.orderProductSizeColorData.productData.price,
         totalAmount: entry.totalAmount,
       })),
+    },
+    {
+      name: "Tổng doanh thu",
+      data: totalRevenue,
+    },
+    {
+      name: "Tổng số lượng khách hàng",
+      data: totalCustomer,
+    },
+    {
+      name: "Số lượng sản phẩm tồn kho",
+      data: InventoryNumber,
+    },
+    {
+      name: "Top 5 khách hàng thân thiết",
+      data: top5Customers.map((entry) => ({
+        name: entry.orderCustomerData.customerData.customerName,
+        avatar: entry.orderCustomerData.customerData.avatar,
+        totalOrders: entry.totalOrders,
+        totalRevenue: entry.totalRevenue,
+      })),
+    },
+    {
+      name: "Tổng số vốn",
+      data: cappitalValue,
+    },
+    {
+      name: "Tổng lợi nhuận",
+      data: totalProfit,
     },
   ];
 

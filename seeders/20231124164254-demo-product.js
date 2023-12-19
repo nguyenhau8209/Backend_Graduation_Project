@@ -5,10 +5,12 @@ module.exports = {
     async up(queryInterface, Sequelize) {
         return queryInterface.bulkInsert("Products", [
             {
+                productCode: "AT-01",
                 name: "[1969STUDIO] Áo Thun Nam Nữ Phối Hot Trend Form Rộng Tay Lỡ Unisex BST 1969ST",
                 mainImage: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llxbywob33z367",
                 categoryId: 10,
                 price: 100000,
+                importPrice: 50000,
                 description: "Tên sản phẩm:[1969STUDIO] Áo Thun Nam Nữ Phối Hot Trend Form Rộng Tay Lỡ Unisex BST 1969ST\n" +
                     "\n" +
                     "Đặc điểm nổi bật của áo thun Unisex tay lỡ\n" +
@@ -35,10 +37,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "AT-02",
                 name: "Áo thun nam cao cấp hoạ tiết trắng đen nổi vải cotton mẫu mới thời trang phong cách",
                 mainImage: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llm8q7ngk1n363",
                 categoryId: 10,
                 price: 120000,
+                importPrice: 60000,
                 description: "1.THÔNG TIN SẢN PHẨM \n" +
                     "- Áo thun  nam NỮ , ngắn tay\n" +
                     " - Form dáng body vừa người , phù hợp du lịch, du xuân, dạo phố, picnic, cafe.... \n" +
@@ -87,10 +91,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "AT-03",
                 name: "Áo Thun Tay Ngắn Dáng Rộng In Hình Anime Thời Trang Mùa Hè Cho Nam Thời Trang MENFASHION1989 MEN TOP 285",
                 mainImage: "https://down-vn.img.susercontent.com/file/vn-11134207-7qukw-lh73hlzxv9rmcb",
                 categoryId: 10,
                 price: 130000,
+                importPrice: 70000,
                 description: "Áo Thun Tay Ngắn Dáng Rộng In Hình Anime Thời Trang Mùa Hè Cho Nam Thời Trang MENFASHION1989 MEN TOP 285\n" +
                     "\n" +
                     "\n" +
@@ -122,10 +128,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "AN-01",
                 name: "Áo sweater nam áo dài tay áo Nỉ siêu rẻ phù hợp nam nữ Chữ cái lập thể 2023 NEW DS230802",
                 mainImage: "https://down-vn.img.susercontent.com/file/sg-11134201-7qve3-ljy25xxdof4n37",
                 categoryId: 3,
                 price: 140000,
+                importPrice: 70000,
                 description: "🌈 Chào mừng đến với cửa hàng của chúng tôi.\n" +
                     "\n" +
                     "\n" +
@@ -176,10 +184,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "AT-04",
                 name: "ÁO THUN NAM NGẮN TAY CỔ BẺ MẪU MỚI NHIỀU MÀU",
                 mainImage: "https://down-vn.img.susercontent.com/file/vn-11134207-7qukw-lfdhc5y9sfwk81",
                 categoryId: 10,
                 price: 150000,
+                importPrice: 80000,
                 description: "Áo thun nam ngắn tay cổ bẻ phong cách Hàn Quốc\n" +
                     "\n" +
                     "Thiết kế đơn giãn thanh lịch trẻ đẹp phù hợp mọi lứa tuổi\n" +
@@ -222,20 +232,29 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "AP-01",
                 name: "Áo thun nam polo cao cấp phong cách mẫu mới thời trang nổi bật vải cotton dày mềm mịn",
                 mainImage: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llnandyew3tb40",
                 categoryId: 9,
                 price: 160000,
-                description: "Product 6 Description",
+                importPrice: 80000,
+                description: "Mẫu HOT hôm nay của Xám \n" +
+                    "#RESTOCK_FULL_SIZE ❤️\n" +
+                    "Chất liệu xịn sò\n" +
+                    "Màu sắc trẻ trung\n" +
+                    "Bắt kịp xu hướng\n" +
+                    "Cam kết là hàng Authentic 100%, ",
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 deletedAt: null,
             },
             {
+                productCode: "AN-02",
                 name: "Áo sweater nam nữ form rộng phối layer chất nỉ unisex thời trang Hàn Quốc UNICI AS01",
                 mainImage: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llwxtjt6tt5r66",
                 categoryId: 3,
                 price: 170000,
+                importPrice: 90000,
                 description: "- Áo sweater nam nữ form rộng phối layer chất nỉ unisex thời trang Hàn Quốc UNICI AS01\n" +
                     "\n" +
                     "\n" +
@@ -254,10 +273,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "AN-03",
                 name: "Áo nỉ hoodie Essentials In cao su nổi , áo nỉ bông unisex nam nữ UNICI SHION AN206",
                 mainImage: "https://down-vn.img.susercontent.com/file/sg-11134201-22110-v0mbcxbmbtjv92",
                 categoryId: 3,
                 price: 180000,
+                importPrice: 90000,
                 description: "Áo nỉ hoodie Essentials In cao su nổi UNICI shop , áo nỉ bông unisex nam nữ\n" +
                     "🍓🍓Cảm ơn bạn đã ghé UNICI SHION\n" +
                     "Shop chuyên thời trang nam Unisex\n" +
@@ -276,10 +297,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "AH-01",
                 name: "Áo hoodie nam nữ cổ cao dáng rộng phối khóa kéo thời trang kiểu Ninja, áo nỉ hoodie Retro Mỹ, áo khoác hoodie zip AH02",
                 mainImage: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lnp5x4i0mg3178",
                 categoryId: 3,
                 price: 190000,
+                importPrice: 100000,
                 description: "💥 Áo hoodie chữ thập cổ cao dáng rộng phối khóa kéo với chất liệu nỉ bông dày dặn mang phong cách thời trang thời thượng cho các bạn trẻ, đặc biệt không những giúp bạn giữ ấm trong mùa lạnh mà còn có thể chống nắng, chống gió, chống bụi, chống rét, chống tia UV cực tốt, rất tiện lợi nhé!!! (được sử dụng nhiều trong dịp lễ hội, đi chơi, da ngoại, dạo phố, du lịch...)" +
                     "🌀 Fullsize: Từ 40-90kg mặc đẹp, bạn vui lòng xem trên bảng size để chọn size phù hợp nhé,\n" +
                     "\n" +
@@ -289,10 +312,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "AS-01",
                 name: "Áo sơ mi nam nữ tay dài giấu khuy form rộng vải lụa cao cấp UNICI ASM41 phong cách Hàn Quốc",
                 mainImage: "https://down-vn.img.susercontent.com/file/vn-11134207-7qukw-lkb2y9yqp12g7e",
                 categoryId: 5,
                 price: 99000,
+                importPrice: 50000,
                 description: "Áo sơ mi nam nữ tay dài giấu khuy form rộng vải lụa cao cấp UNICI ASM41 phong cách Hàn Quốc\n" +
                     "\n" +
                     "hàng fullbox cực sang chảnh, Chất lượng cao, thiết kế sang trọng (xem video chi tiết trên sản phẩm)\n" +
@@ -309,10 +334,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "AS-02",
                 name: "Áo sơ mi nhung tăm nam ROUGH form basic dễ phối đồ",
                 mainImage: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lme2ewoxllun04",
                 categoryId: 5,
                 price: 99000,
+                importPrice: 50000,
                 description: "-Bảng size chart chỉ mang tính chất tham khảo. Tùy thuộc vào số đo cơ thể mỗi người và chất liệu vải khác nhau sẽ có sự chênh lệch nhất định. Bạn hãy chat với shop để được nv CSKH tư vấn cụ thể hơn nhé." +
                     "+ Do màn hình và điều kiện ánh sáng khác nhau, màu sắc vải/ sản phẩm có thể sẽ chênh lệch thực tế một phần nhỏ nhưng vẫn đảm bảo chất lượng.\n" +
                     "\n" +
@@ -330,10 +357,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "AK-01",
                 name: "Áo Khoác Dù CAMPAIN WHAT LOGO Nam Ulzzang Unisex Form Rộng Bomber TRƠN Jacket (Ảnh thật/ Có sẳn)",
                 mainImage: "https://down-vn.img.susercontent.com/file/vn-11134207-7qukw-lfnek0hnvt6s30",
                 categoryId: 1,
                 price: 99000,
+                importPrice: 50000,
                 description: "Áo Khoác Dù CAMPAIN WHAT LOGO Nam Nữ Ulzzang Unisex Form Rộng Bomber TRƠN Jacket (Ảnh thật/ Có sẳn)\n" +
                     "\n" +
                     "Tụi mình về thêm mẫu áo khoác dù trắng phối tay đen, đi mưa hay nắng đều được luôn nè. Bạn mix với phong cách đi học hay đi chơi đều okie nhé ạ!!!\n" +
@@ -358,10 +387,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "AK-02",
                 name: "Áo khoác bomber nhung tăm cổ bẻ kiểu trơn 1 lớp dày dặn chuẩn form siêu xinh sành điệu cao cấp BẢO ĐĂNG",
                 mainImage: "https://down-vn.img.susercontent.com/file/93351529ac246bc3e95ced189b75039e",
                 categoryId: 2,
                 price: 99000,
+                importPrice: 50000,
                 description: "* Chất liệu vải nhung tăm 1 lớp Lót Dù dày dặn, chống nắng cho ngày nắng gắt & chống gió lạnh cho ngày mưa.\n" +
                     "\n" +
                     "\n" +
@@ -382,10 +413,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "AS-03",
                 name: "Áo Ghi - Lê (gile) áo khoác ngoài nam, chất poly mỏng nhẹ, mềm mịn, Form Unisex, MT Group.",
                 mainImage: "https://down-vn.img.susercontent.com/file/sg-11134201-22100-mw1zxtvt80hve4",
                 categoryId: 2,
                 price: 99000,
+                importPrice: 50000,
                 description: "THÔNG TIN SẢN PHẨM\n" +
                     "\n" +
                     "- Chất liệu: KaKi poly mỏng vô cùng mềm mại, không nhăn, không xù, hàm lượng cotton lên đên 95%\n" +
@@ -410,10 +443,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "ABL-01",
                 name: "Áo Ba Lỗ Nam Sát Nách Thể Thao Chất Vải Co Dãn Mặc Nhà, Tập Gym Vesca B1",
                 mainImage: "https://down-vn.img.susercontent.com/file/vn-11134207-7qukw-lh5xkill7bqq68",
                 categoryId: 4,
                 price: 99000,
+                importPrice: 50000,
                 description: "ĐẶC ĐIỂM SẢN PHẨM: \n" +
                     "\n" +
                     "✔️ Trẻ trung năng động, cá tính\n" +
@@ -438,10 +473,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "ABL-02",
                 name: "Áo lót ba lỗ nam ,chất liệu cotton mềm mại, thoáng khí, thấm hút mổ hôi tốt",
                 mainImage: "https://down-vn.img.susercontent.com/file/a46b3dd13481d3046acae37f5980804f",
                 categoryId: 4,
                 price: 99000,
+                importPrice: 50000,
                 description: "Áo lót ba lỗ nam BM được dệt may từ chất liệu Cotton (VẢI BÔNG) cho bề mặt mềm mại, thoáng mát,và dễ giặt sạch. Chất liệu này thấm hút mồ hôi nhanh, giữ cho cơ thể luôn khô thoáng và thoải mái.\n" +
                     "Sản phẩm được sản xuất và cắt may tại VIỆT NAM, đem đến sự an toàn cho làn da, giá cả và chất lượng luôn làm bạn cảm thấy hài lòng khi dùng.\n" +
                     "\n" +
@@ -453,10 +490,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "APH-01",
                 name: "Áo phông nam BEEYANBUY Y0472 dáng rộng tay ngắn thời trang cá tính",
                 mainImage: "https://down-vn.img.susercontent.com/file/cn-11134207-7r98o-lm5ol70lifc2b3",
                 categoryId: 6,
                 price: 99000,
+                importPrice: 50000,
                 description: "- -Chất Liệu: 100% Cotton, vải mềm, mịn, thoáng mát, không gò bó.\n" +
                     "\n" +
                     "- - Đường may chuẩn, tỉ mỉ, chắc chắn.\n" +
@@ -469,10 +508,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "APH-02",
                 name: "Áo thun nam BEEYANBUY Y0443 100% cotton tay lỡ vintage unisex ulzzang",
                 mainImage: "https://down-vn.img.susercontent.com/file/cn-11134207-7r98o-llk4u89c6lrgcf",
                 categoryId: 5,
                 price: 99000,
+                importPrice: 50000,
                 description: "Thông tin sản phẩm Áo thun unisex BEEYANBUY \n" +
                     "\n" +
                     "- - Chất liệu: 100 - Chất liệu: 100% Cotton, vải mềm, chất vải mịn, thoáng mát, không xù.\n" +
@@ -487,10 +528,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "AGN-01",
                 name: "Áo Giữ Nhiệt Nam Dài Tay Cao Cấp VESCA N",
                 mainImage: "https://down-vn.img.susercontent.com/file/ca99e3e0c9a88d480ba39a7922fc9836",
                 categoryId: 7,
                 price: 99000,
+                importPrice: 50000,
                 description: "THÔNG TIN CHI TIẾT \n" +
                     "\n" +
                     "🎗 Chất liệu: Thun lạnh\n" +
@@ -507,10 +550,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "AGN-02",
                 name: "Áo Giữ Nhiệt Nam Cổ Cao Lót Nỉ Vải Cotton Ấm Áp Thu Đông VESCA N11",
                 mainImage: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llsqx8hkccm706",
                 categoryId: 7,
                 price: 99000,
+                importPrice: 50000,
                 description: "THÔNG TIN CHI TIẾT \n" +
                     "\n" +
                     "🎗 Chất liệu: Cotton nỉ\n" +
@@ -527,10 +572,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "ACN-01",
                 name: "Áo chống nắng Nam BL Fashion cổ cao túi khoá kéo,chất liệu vải kim cương thun thoáng khí",
                 mainImage: "https://down-vn.img.susercontent.com/file/954245a7c4430ffcb9f07888db233c0a",
                 categoryId: 8,
                 price: 99000,
+                importPrice: 50000,
                 description: "🍀 Áo chống nắng nam cải tiến mới nhất 2020,  với thiết kế khóa kéo che mặt có thể thay thế khẩu trang.\n" +
                     "\n" +
                     "🍀 Thiết kế tinh tế theo dáng áo parka,  tay áo dài,  thiết kế thông minh che được hết mu bàn tay\n" +
@@ -551,10 +598,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "ACN-02",
                 name: "Áo chống nắng 1 lớp nam Tezo thoáng khi thấm hút mồ hôi chống tia cực tím vượt trội 2201ACNB01",
                 mainImage: "https://down-vn.img.susercontent.com/file/vn-11134207-7qukw-ligre1a5uriq0c",
                 categoryId: 8,
                 price: 99000,
+                importPrice: 50000,
                 description: "Chất liệu: Thun Kim Cương ( 93% PE Cool , 7% Spandex )\n" +
                     "\n" +
                     "Màu sắc: 5 màu (ghi nhạt, xanh than, xanh dương, ghi đậm, xanh đậm)\n" +
@@ -571,10 +620,12 @@ module.exports = {
                 deletedAt: null,
             },
             {
+                productCode: "AP-02",
                 name: "Áo Polo Nam Regular Minisquare C5, Chất Vải Cotton Thoải Mái, PL0076, SOMEHOW",
                 mainImage: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llozhpgl11b3ad",
                 categoryId: 9,
                 price: 99000,
+                importPrice: 50000,
                 description: "Chất liệu: Thun Kim Cương ( 93% PE Cool , 7% Spandex )\n" +
                     "\n" +
                     "Màu sắc: 5 màu (ghi nhạt, xanh than, xanh dương, ghi đậm, xanh đậm)\n" +

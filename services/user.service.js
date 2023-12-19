@@ -6,7 +6,7 @@ const axios = require("axios");
 const customerRepo = require("../repositories/customer.repo");
 const cartRepo = require("../repositories/cart.repo");
 const HelperApp = require("../utils/helper");
-const {handleBadRequest, handleNotFound, handleSuccess, handleServerError} = require("../utils/handleReturn")
+const {handleBadRequest, handleNotFound, handleSuccess, handleServerError, handleCreate} = require("../utils/handleReturn")
 const urlUploadImage = require("../utils/cloudinary");
 
 const getUserInfo = async (accessToken) => {
@@ -30,7 +30,7 @@ const getUserInfo = async (accessToken) => {
 };
 const login = async (data) => {
     try {
-        const {access_token} = data;
+        const {access_token, device_token} = data;
         const googleUser = await getUserInfo(access_token);
         let newUser = await userRepo.getUserByCondition({userId: googleUser.sub});
 
@@ -56,7 +56,10 @@ const login = async (data) => {
                     message: "Customer creation failed.",
                 };
             }
+            await checkDeviceToken(customer?.id, device_token);
         }
+        await checkDeviceToken(customer?.id, device_token);
+
 
         // Check if cart exists
         let cart = await cartRepo.getCart({customerId: customer.id});
@@ -96,6 +99,26 @@ const login = async (data) => {
         };
     }
 };
+
+const checkDeviceToken = async (customerId, deviceToken) => {
+    try {
+        const findCustomerInDeviceTable = await deviceTokenRepo.getDeviceToken({customerId});
+        if(!findCustomerInDeviceTable){
+         const createDeviceToken = await deviceTokenRepo.createDeviceToken({customerId, deviceToken});
+         if(!createDeviceToken) {
+             return handleBadRequest("Tạo device token không thành công.");
+         }
+         return handleCreate("Thành công", createDeviceToken);
+        }
+        const updateDeviceToken = await deviceTokenRepo.updateDeviceToken({customerId}, {deviceToken});
+        if (!updateDeviceToken){
+            return handleBadRequest("Cập nhật device token không thành công");
+        }
+        return handleSuccess("Cập nhật device token thành công");
+    }catch (e) {
+        return handleServerError(e.message);
+    }
+}
 
 const createUserFromGoogleUser = async (googleUser) => {
     try {
@@ -150,9 +173,68 @@ const updateUser = async (id, avatar, data) => {
     }
 };
 
+const { Op } = require('sequelize');
+const db = require("../models");
+const sequelize = require("sequelize");
+const deviceTokenRepo = require("../repositories/deviceToken.repo");
+
+const filterUsers = async (filterOptions) => {
+    try {
+        const {
+            searchKeyword,
+            page,
+            pageSize,
+        } = filterOptions;
+
+        const whereConditions = {};
+
+        if (searchKeyword) {
+            whereConditions[Op.or] = [
+                sequelize.where(sequelize.fn('LOWER', sequelize.col('userId')), {
+                    [Op.like]: `%${searchKeyword.toLowerCase()}%`
+                }),
+                sequelize.where(sequelize.fn('LOWER', sequelize.col('name')), {
+                    [Op.like]: `%${searchKeyword.toLowerCase()}%`
+                }),
+                sequelize.where(sequelize.fn('LOWER', sequelize.col('email')), {
+                    [Op.like]: `%${searchKeyword.toLowerCase()}%`
+                }),
+            ];
+        }
+
+        const currentPage = parseInt(page, 10) || 1;
+        const itemsPerPage = parseInt(pageSize, 10) || 10;
+        const offset = (currentPage - 1) * itemsPerPage;
+
+        const users = await db.User.findAndCountAll({
+            where: whereConditions,
+            limit: itemsPerPage,
+            offset: offset,
+        });
+        if(!users) {
+            return handleNotFound("Khong tim thay khach hang nao");
+        }
+        const totalUsers = users.count;
+        const totalPages = Math.ceil(totalUsers / itemsPerPage);
+
+        return handleSuccess("Thanh cong", {
+            users: users.rows,
+            pagination: {
+                totalItems: totalUsers,
+                totalPages: totalPages,
+                currentPage: currentPage,
+            },
+        })
+    } catch (error) {
+       return handleServerError(error?.message)
+    }
+};
+
+
 const userService = {
     login,
-    updateUser
+    updateUser,
+    filterUsers
 };
 
 module.exports = userService;

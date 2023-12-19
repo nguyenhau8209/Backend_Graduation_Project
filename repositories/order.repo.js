@@ -24,7 +24,7 @@ const getOrder = async (filter) => {
               {
                 model: db.Product,
                 as: "productData",
-                attributes: ["id", "name", "mainImage"],
+                attributes: ["id", "name", "mainImage", "salePrice", "saleStart", "saleEnd"],
                 include: [
                   {
                     model: db.Category,
@@ -105,12 +105,22 @@ const updateStatusOrder = async (filter, data) => {
   );
 };
 
+const updateStatusPayment = async (filter, data) => {
+  return await db.Payment.update(
+    {
+      status: data,
+    },
+    { where: filter }
+  );
+};
+
 const orderRepo = {
   createOrder,
   getOrder,
   getOrders,
   deleteOrder,
   updateStatusOrder,
+  updateStatusPayment
 };
 
 module.exports = orderRepo;
